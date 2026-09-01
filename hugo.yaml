@@ -6,7 +6,6 @@ contentDir: content/en
 defaultContentLanguage: en
 defaultContentLanguageInSubdir: false
 enableMissingTranslationPlaceholders: true
-
 enableRobotsTXT: true
 enableGitInfo: true
 
@@ -42,18 +41,6 @@ taxonomies:
   tag: tags
   category: categories
 
-# Redirect output used by layouts/home.redirects
-mediaTypes:
-  text/redirects:
-    delimiter: ""
-
-outputFormats:
-  redirects:
-    baseName: _redirects
-    isPlainText: true
-    mediaType: text/redirects
-    root: true
-
 # Image processing
 imaging:
   resampleFilter: CatmullRom
@@ -85,7 +72,6 @@ outputs:
     - HTML
     - print
     - RSS
-    - redirects
 
   section:
     - HTML
@@ -111,9 +97,7 @@ params:
   privacy_policy: /blog/terms-conditions/
   github_repo: https://github.com/JustinVerstijnen/JVTechnicalBlog
   github_branch: main
-
   prism_syntax_highlighting: false
-
   copyright:
     authors: >-
       | Justin Verstijnen |

@@ -75,5 +75,8 @@
   "cSpell:ignore": "",
   "workspaces": [
     "packages/hugoautogen"
-  ]
+  ],
+  "overrides": {
+    "adm-zip": "^0.6.0"
+  }
 }
