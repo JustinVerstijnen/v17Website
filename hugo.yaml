@@ -1,0 +1,162 @@
+baseURL: https://justinverstijnen.nl
+title: Justin Verstijnen
+
+# Language settings
+contentDir: content/en
+defaultContentLanguage: en
+defaultContentLanguageInSubdir: false
+enableMissingTranslationPlaceholders: true
+
+enableRobotsTXT: true
+enableGitInfo: true
+
+# /Blog en datum uitschakelen uit URL
+permalinks:
+  blog: "/:slug/"
+
+# Disable archive-hidden pages
+ignoreFiles:
+  - "/content/en/blog/archive-hidden/"
+
+# Navbar menu
+menu:
+  main:
+    - name: Home
+      url: /
+      weight: 1
+
+    - name: Blog
+      url: /blog/
+      weight: 10
+
+    - name: Tools
+      url: https://tools.justinverstijnen.nl
+      weight: 20
+
+    - name: About
+      url: /about/
+      weight: 30
+
+# Taxonomies
+taxonomies:
+  tag: tags
+  category: categories
+
+# Redirect output used by layouts/home.redirects
+mediaTypes:
+  text/redirects:
+    delimiter: ""
+
+outputFormats:
+  redirects:
+    baseName: _redirects
+    isPlainText: true
+    mediaType: text/redirects
+    root: true
+
+# Image processing
+imaging:
+  resampleFilter: CatmullRom
+
+# Language configuration
+languages:
+  en:
+    label: English
+    title: Justin Verstijnen
+    params:
+      description: Technical articles, guides and hands-on experience focused on Microsoft Azure, Azure Virtual Desktop, Microsoft Entra, Intune, Networking, PowerShell, Windows Server and Security.
+
+# Markdown / syntax highlighting
+markup:
+  goldmark:
+    parser:
+      attribute:
+        block: true
+    renderer:
+      unsafe: true
+
+  highlight:
+    style: tango
+    noClasses: false
+
+# Output formats
+outputs:
+  home:
+    - HTML
+    - print
+    - RSS
+    - redirects
+
+  section:
+    - HTML
+    - print
+    - RSS
+
+# Docsy configuration
+params:
+  offlineSearch: true
+  offlineSearchMaxResults: 7
+
+  taxonomy:
+    taxonomyCloud:
+      - tags
+      - categories
+    taxonomyCloudTitle:
+      - Tags
+      - Categories
+    taxonomyPageHeader:
+      - tags
+      - categories
+
+  privacy_policy: /blog/terms-conditions/
+  github_repo: https://github.com/JustinVerstijnen/JVTechnicalBlog
+  github_branch: main
+
+  prism_syntax_highlighting: false
+
+  copyright:
+    authors: >-
+      | Justin Verstijnen |
+    from_year: 2024
+    to_year: present
+
+  # User interface configuration
+  ui:
+    breadcrumb_disable: false
+    navbar_logo: true
+    navbar_translucent_over_cover_disable: true
+    sidebar_menu_foldable: true
+    sidebar_menu_compact: false
+    sidebar_search_disable: false
+    showLightDarkModeMenu: true
+    feedback:
+      enable: false
+    readingtime:
+      enable: true
+
+  links:
+    developer:
+      - name: Header photo
+        url: /blog/header-photo/
+        icon: fa-regular fa-camera
+        desc: Header picture
+
+      - name: Send me an email
+        url: mailto:info@justinverstijnen.nl
+        icon: fa fa-envelope
+        desc: Discuss development issues around the project
+
+      - name: Sitemap
+        url: /sitemap.xml
+        icon: fa-solid fa-rss
+        desc: Sitemap
+
+# Hugo Module / Docsy
+module:
+  hugoVersion:
+    extended: true
+    min: 0.160.1
+
+  imports:
+    - path: github.com/google/docsy/theme
+      disable: false

@@ -1,0 +1,1157 @@
+/* Site style overrides */
+
+/* Importing project-specific modules */
+@import 'td/color-adjustments-dark';
+@import 'td/code-dark';
+@import 'td/gcs-search-dark';
+@import 'td/extra/buttons';
+@import 'td/extra/main-container';
+
+/* Improve link contrast inside primary content blocks */
+.td-box--primary {
+  a {
+    color: #ffffff !important;
+    background-color: #77B0DE;
+  }
+}
+
+.td-box--primary {
+    color: #fff;
+    background-color: #77B0DE;
+}
+
+/* Button colors */
+.btn-primary, .td-blog .td-rss-button .btn.disabled .btn-outline-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #77B0DE;
+  --bs-btn-border-color: #8daed9;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #6da1cb;
+  --bs-btn-hover-border-color: #6da1cb;
+  --bs-btn-active-bg: #6da1cb;
+  --bs-btn-active-border-color: #6da1cb;
+  background-color: #77B0DE;
+}
+
+  .btn-outline-primary, div.drawio button {
+    --bs-btn-color: #77B0DE;
+    --bs-btn-border-color: #77B0DE;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #687f9e;
+    --bs-btn-hover-border-color: #77B0DE;
+}
+
+/* Arrow color opened blog section */
+nav.foldable-nav .ul-1 .with-child>input:checked~label::before {
+    color: #77B0DE;
+}
+
+.page-link.active, .active>.page-link {
+    z-index: 3;
+    color: var(--bs-pagination-active-color);
+    background-color: #77B0DE;
+    border-color: #77B0DE;
+}
+
+.taxonomy-terms-cloud .taxonomy-title {
+    color: #77B0DE;
+}
+/* Hide the language selector in the navbar */
+.td-navbar .td-lang-menu {
+  display: none;
+}
+
+/* Dark/Lightmode selector background color (active) */
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: #77B0DE;
+}
+
+/* Hide the project Links in page */
+.td-page-meta {
+  display: none;
+}
+
+/* Default link styling (slightly darker version for readability light/dark)*/
+a {
+  color: #4b92cb;
+  text-decoration: none;
+}
+
+/* Self-link color for headings */
+.td-heading-self-link {
+  color: #77B0DE;
+}
+
+
+/* Table styling: keep tables readable and replace the default grey striped rows */
+.td-table:not(.td-initial),
+.td-content table:not(.td-initial),
+.td-box table:not(.td-initial) {
+  min-width: 640px;
+  --bs-table-striped-bg: rgba(119, 176, 222, 0.12);
+  --bs-table-hover-bg: rgba(119, 176, 222, 0.16);
+}
+
+/* Default navbar styling */
+.td-navbar {
+  --bs-link-underline-opacity: 0.65;
+  --td-navbar-bg-color: #77B0DE;
+}
+
+/* Fix for navbar not showing properly on mobile devices */
+@media(min-width: 1px) {
+    .td-navbar {
+        position:fixed;
+        top: 0;
+        min-height: 4rem;
+        width: 100%
+    }
+}
+
+/* Non-home pages: normal solid navbar */
+body:not(.home-navbar-transparent) .td-navbar {
+  background-color: var(--td-navbar-bg-color) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid var(--bs-border-color) !important;
+  box-shadow: none !important;
+}
+
+/* Homepage: glass-effect navbar */
+.home-navbar-transparent .td-navbar,
+.home-navbar-transparent .td-navbar.td-navbar-cover,
+.home-navbar-transparent .td-navbar.td-navbar-cover.td-navbar-transparent {
+  background: rgba(255, 255, 255, 0.08) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+  backdrop-filter: blur(10px) saturate(140%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16) !important;
+}
+
+/* Remove extra overlay layers that can create ugly bars */
+.home-navbar-transparent .td-navbar::before,
+.home-navbar-transparent .td-navbar::after,
+.home-navbar-transparent .td-navbar-container::before,
+.home-navbar-transparent .td-navbar-container::after {
+  content: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+/* Kill any extra overlay layers */
+.home-navbar-transparent .td-navbar::before,
+.home-navbar-transparent .td-navbar::after,
+.home-navbar-transparent .td-navbar-container::before,
+.home-navbar-transparent .td-navbar-container::after {
+  content: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+/* Remove extra generated layers that can create a white bar */
+.home-navbar-transparent .td-navbar::before,
+.home-navbar-transparent .td-navbar::after {
+  content: none !important;
+}
+
+/* Make navbar text white on the homepage */
+.home-navbar-transparent .td-navbar .nav-link,
+.home-navbar-transparent .td-navbar .navbar-brand,
+.home-navbar-transparent .td-navbar .dropdown-toggle {
+  color: #fff !important;
+}
+
+/* Make the navbar search white only on the homepage */
+.home-navbar-transparent .td-navbar .td-search,
+.home-navbar-transparent .td-navbar .td-search:not(:focus-within),
+.home-navbar-transparent .td-navbar .td-search__icon,
+.home-navbar-transparent .td-navbar .td-search__icon::before,
+.home-navbar-transparent .td-navbar .td-search .fa-search,
+.home-navbar-transparent .td-navbar .td-search i,
+.home-navbar-transparent .td-navbar .td-search__input,
+.home-navbar-transparent .td-navbar .td-search .form-control,
+.home-navbar-transparent .td-navbar .td-search__input.form-control {
+  color: #fff !important;
+}
+
+/* Style the homepage search input */
+.home-navbar-transparent .td-navbar .td-search__input,
+.home-navbar-transparent .td-navbar .td-search .form-control,
+.home-navbar-transparent .td-navbar .td-search__input.form-control {
+  border-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  caret-color: #fff !important;
+  border-width: 1px !important;
+}
+
+/* Keep the homepage search field white while focused */
+.home-navbar-transparent .td-navbar .td-search__input:focus,
+.home-navbar-transparent .td-navbar .td-search .form-control:focus,
+.home-navbar-transparent .td-navbar .td-search__input.form-control:focus {
+  color: #fff !important;
+  border-color: #fff !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Make homepage search placeholder text white */
+.home-navbar-transparent .td-navbar .td-search__input::placeholder,
+.home-navbar-transparent .td-navbar .td-search .form-control::placeholder,
+.home-navbar-transparent .td-navbar .td-search__input::-webkit-input-placeholder,
+.home-navbar-transparent .td-navbar .td-search .form-control::-webkit-input-placeholder,
+.home-navbar-transparent .td-navbar .td-search__input::-moz-placeholder,
+.home-navbar-transparent .td-navbar .td-search .form-control::-moz-placeholder,
+.home-navbar-transparent .td-navbar .td-search__input:-ms-input-placeholder,
+.home-navbar-transparent .td-navbar .td-search .form-control:-ms-input-placeholder {
+  color: #fff !important;
+  opacity: 1 !important;
+}
+
+/* Restore normal search colors on all non-home pages */
+body:not(.home-navbar-transparent) .td-navbar .td-search,
+body:not(.home-navbar-transparent) .td-navbar .td-search:not(:focus-within),
+body:not(.home-navbar-transparent) .td-navbar .td-search__icon,
+body:not(.home-navbar-transparent) .td-navbar .td-search__icon::before,
+body:not(.home-navbar-transparent) .td-navbar .td-search .fa-search,
+body:not(.home-navbar-transparent) .td-navbar .td-search i {
+  color: var(--bs-body-color) !important;
+}
+
+/* Restore normal search input colors on all non-home pages */
+body:not(.home-navbar-transparent) .td-navbar .td-search__input,
+body:not(.home-navbar-transparent) .td-navbar .td-search .form-control,
+body:not(.home-navbar-transparent) .td-navbar .td-search__input.form-control {
+  color: var(--bs-body-color) !important;
+  border-color: var(--bs-border-color) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  caret-color: var(--bs-body-color) !important;
+  border-width: 1px !important;
+}
+
+/* Restore normal search colors while focused on all non-home pages */
+body:not(.home-navbar-transparent) .td-navbar .td-search__input:focus,
+body:not(.home-navbar-transparent) .td-navbar .td-search .form-control:focus,
+body:not(.home-navbar-transparent) .td-navbar .td-search__input.form-control:focus {
+  color: var(--bs-body-color) !important;
+  border-color: var(--bs-border-color) !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Restore normal placeholder colors on all non-home pages */
+body:not(.home-navbar-transparent) .td-navbar .td-search__input::placeholder,
+body:not(.home-navbar-transparent) .td-navbar .td-search .form-control::placeholder,
+body:not(.home-navbar-transparent) .td-navbar .td-search__input::-webkit-input-placeholder,
+body:not(.home-navbar-transparent) .td-navbar .td-search .form-control::-webkit-input-placeholder,
+body:not(.home-navbar-transparent) .td-navbar .td-search__input::-moz-placeholder,
+body:not(.home-navbar-transparent) .td-navbar .td-search .form-control::-moz-placeholder,
+body:not(.home-navbar-transparent) .td-navbar .td-search__input:-ms-input-placeholder,
+body:not(.home-navbar-transparent) .td-navbar .td-search .form-control:-ms-input-placeholder {
+  color: var(--bs-body-color) !important;
+  opacity: 1 !important;
+}
+
+/* Make homepage feature blocks fully clickable */
+.homepage-feature-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Keep homepage feature links clean on hover and focus */
+.homepage-feature-link:hover,
+.homepage-feature-link:focus {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Styling homepage blocks in picture */
+.td-cover-block {
+  min-height: 100vh; /* volledige schermhoogte */
+  display: flex;
+  align-items: center;      /* verticaal centreren */
+  justify-content: center;  /* horizontaal centreren */
+  text-align: center;
+}
+
+.td-cover-block-inner {
+  margin: 0 auto;
+}
+
+/* Shared card sizing for homepage feature blocks and latest post cards */
+.homepage-equal-card {
+  min-height: 100%;
+  padding: 2rem;
+  border-radius: 0.9rem;
+}
+
+/* Homepage feature block styling */
+.homepage-feature-item {
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Highlight feature blocks on hover */
+.homepage-feature-link:hover .homepage-feature-item,
+.homepage-feature-link:focus .homepage-feature-item {
+  transform: translateY(-4px);
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.12);
+}
+
+/* Homepage latest post card styling */
+.homepage-post-card {
+  height: 100%;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.9rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+}
+
+/* Keep blog post titles clean */
+.homepage-post-title {
+  color: inherit;
+  text-decoration: none;
+}
+
+.homepage-post-title:hover,
+.homepage-post-title:focus {
+  text-decoration: underline;
+}
+
+/* Style the blog post category */
+.homepage-post-category {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #77B0DE;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Style the blog post date */
+.homepage-post-date {
+  font-size: 0.95rem;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.75rem;
+}
+
+/* Footer background color */
+.td-box--dark,
+.td-footer {
+  color: #fff;
+  background-color: #0E202C;
+}
+
+/* Background color homepage */
+.-bg-primary {
+    color: #fff;
+    background-color: #77B0DE;
+}
+
+/* Blog posts pages styles */
+.td-toc #TableOfContents a.active {
+    color: #4b92cb;
+    border-left-color: #77B0DE;
+}
+
+/* Theme colors on hover */
+.td-sidebar-nav a:hover,
+.td-sidebar-nav a:focus,
+.td-sidebar .nav-link:hover,
+.td-sidebar .nav-link:focus,
+.td-sidebar-link:hover,
+.td-sidebar-link:focus,
+.td-sidebar-nav__section-title:hover,
+.td-sidebar-nav__section-title:focus,
+.td-sidebar-nav__section-title a:hover,
+.td-sidebar-nav__section-title a:focus,
+.td-sidebar-nav .td-sidebar-link__page:hover,
+.td-sidebar-nav .td-sidebar-link__page:focus,
+.td-sidebar-nav .nav-item summary:hover,
+.td-sidebar-nav .nav-item summary:focus {
+  color: #77B0DE !important;
+}
+
+/* Add breathing room below code blocks and code cards */
+.td-content .highlight,
+.td-content .td-card.card {
+  margin-bottom: 1rem;
+}
+
+/* Keep compact layout when a code block/card is the final element */
+.td-content > .highlight:last-child,
+.td-content > .td-card.card:last-child {
+  margin-bottom: 0;
+}
+
+/* About page fixed navbar offset */
+body.has-ps-about-page {
+  --ps-about-navbar-offset: 0px;
+}
+
+body.has-ps-about-page .td-main {
+  padding-top: calc(var(--ps-about-navbar-offset) + 0.75rem);
+}
+
+body.has-ps-about-page .ps-about,
+body.has-ps-about-page .ps-markdown,
+body.has-ps-about-page .ps-markdown h1,
+body.has-ps-about-page .ps-markdown h2,
+body.has-ps-about-page .ps-markdown h3,
+body.has-ps-about-page .ps-markdown h4,
+body.has-ps-about-page .ps-markdown h5,
+body.has-ps-about-page .ps-markdown h6,
+body.has-ps-about-page .ps-markdown [id] {
+  scroll-margin-top: calc(var(--ps-about-navbar-offset) + 1rem);
+}
+
+@media (max-width: 900px) {
+  body.has-ps-about-page .td-main {
+    padding-top: calc(var(--ps-about-navbar-offset) + 0.5rem);
+  }
+}
+
+/* Planned posts page */
+.planned-posts-page {
+  max-width: 980px;
+}
+
+.planned-posts-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.planned-posts-summary__card {
+  background: linear-gradient(135deg, rgba(119, 176, 222, 0.14), rgba(119, 176, 222, 0.05));
+  border: 1px solid rgba(119, 176, 222, 0.25);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+}
+
+.planned-posts-summary__number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #4b92cb;
+  word-break: break-word;
+}
+
+.planned-posts-summary__label {
+  margin-top: 0.35rem;
+  color: var(--bs-body-color);
+  opacity: 0.85;
+}
+
+.planned-posts-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.planned-post-card {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 14px;
+  background: var(--bs-body-bg);
+  padding: 1.35rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.planned-post-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(119, 176, 222, 0.45);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.planned-post-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.planned-post-card__date {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  background: rgba(119, 176, 222, 0.12);
+  color: #4b92cb;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.planned-post-card__countdown {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  background: #77B0DE;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.planned-post-card__title {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.planned-post-card__title a,
+.planned-post-card__title {
+  color: #4b92cb;
+}
+
+.planned-post-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  color: var(--bs-body-color);
+  opacity: 0.9;
+  margin-bottom: 0.9rem;
+}
+
+.planned-post-card__meta-separator {
+  opacity: 0.55;
+}
+
+.planned-post-card__description {
+  margin-bottom: 1rem;
+}
+
+.planned-post-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.planned-post-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  background: var(--bs-light);
+  border: 1px solid var(--bs-border-color);
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.planned-post-chip--category {
+  background: rgba(119, 176, 222, 0.10);
+  border-color: rgba(119, 176, 222, 0.20);
+}
+
+.planned-post-card__footer {
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--bs-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.planned-post-card__footer-label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.planned-post-card__footer code {
+  word-break: break-word;
+}
+
+.planned-posts-empty {
+  margin-top: 1.5rem;
+  border: 1px dashed var(--bs-border-color);
+  border-radius: 14px;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  background: var(--bs-body-bg);
+}
+
+.planned-posts-empty h2 {
+  margin-bottom: 0.5rem;
+  color: #4b92cb;
+}
+
+@media (max-width: 767.98px) {
+  .planned-post-card {
+    padding: 1rem;
+  }
+
+  .planned-post-card__title {
+    font-size: 1.5rem;
+  }
+
+  .planned-posts-summary__number {
+    font-size: 1.5rem;
+  }
+}
+
+/* Planned posts page layout fixes */
+.planned-posts-page {
+  width: 100%;
+  max-width: 980px;
+  margin: 5.5rem auto 0 auto;
+  padding: 0 1rem 2.5rem 1rem;
+}
+
+/* Center the planned posts content inside the Docsy content area */
+.td-content .planned-posts-page {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Give the generated page title enough space below the fixed navbar */
+.td-content > .planned-posts-page:first-child {
+  padding-top: 1rem;
+}
+
+/* Make sure summary cards and post cards do not stick to the left edge */
+.planned-posts-summary,
+.planned-posts-grid {
+  width: 100%;
+}
+
+/* Better mobile spacing */
+@media (max-width: 767.98px) {
+  .planned-posts-page {
+    margin-top: 5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+/* Planned posts calendar */
+.planned-posts-calendar {
+  margin: 0 0 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 16px;
+  background: var(--bs-body-bg);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+}
+
+.planned-posts-calendar__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.planned-posts-calendar__eyebrow {
+  margin-bottom: 0.2rem;
+  color: #4b92cb;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.planned-posts-calendar h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.25;
+}
+
+.planned-posts-calendar__controls {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(9.5rem, auto) 2.4rem;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.planned-posts-calendar__month {
+  min-width: 0;
+  text-align: center;
+  font-weight: 700;
+}
+
+.planned-posts-calendar__nav {
+  display: inline-grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  place-items: center;
+  border: 1px solid rgba(119, 176, 222, 0.4);
+  border-radius: 10px;
+  background: rgba(119, 176, 222, 0.1);
+  color: #4b92cb;
+  font-size: 1.55rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.planned-posts-calendar__nav:hover:not(:disabled),
+.planned-posts-calendar__nav:focus-visible:not(:disabled) {
+  border-color: rgba(119, 176, 222, 0.75);
+  background: rgba(119, 176, 222, 0.2);
+  transform: translateY(-1px);
+}
+
+.planned-posts-calendar__nav:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.planned-posts-calendar__weekdays,
+.planned-posts-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.planned-posts-calendar__weekdays {
+  margin-bottom: 0.45rem;
+  color: var(--bs-body-color);
+  font-size: 0.76rem;
+  font-weight: 700;
+  opacity: 0.65;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.planned-posts-calendar__day {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  aspect-ratio: 1 / 0.82;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0.55rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--bs-body-color);
+  font: inherit;
+}
+
+.planned-posts-calendar__day--empty {
+  border-color: transparent;
+}
+
+.planned-posts-calendar__day--today {
+  box-shadow: inset 0 0 0 2px rgba(119, 176, 222, 0.45);
+}
+
+.planned-posts-calendar__day--scheduled {
+  border-color: rgba(119, 176, 222, 0.65);
+  background: linear-gradient(135deg, rgba(119, 176, 222, 0.2), rgba(119, 176, 222, 0.08));
+  color: #397eB6;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.planned-posts-calendar__day--scheduled:hover,
+.planned-posts-calendar__day--scheduled:focus-visible {
+  z-index: 1;
+  border-color: #4b92cb;
+  box-shadow: 0 8px 20px rgba(75, 146, 203, 0.18);
+  transform: translateY(-2px);
+}
+
+.planned-posts-calendar__day-number {
+  line-height: 1;
+}
+
+.planned-posts-calendar__day-marker {
+  position: absolute;
+  right: 0.48rem;
+  bottom: 0.48rem;
+  display: grid;
+  width: 0.62rem;
+  height: 0.62rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #4b92cb;
+  color: #fff;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.planned-posts-calendar__day-marker:not(:empty) {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.planned-posts-calendar__legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+  color: var(--bs-body-color);
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.planned-posts-calendar__legend > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.planned-posts-calendar__noscript {
+  margin: 0.9rem 0 0;
+  color: var(--bs-body-color);
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.planned-posts-calendar__legend-dot {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 999px;
+  background: #4b92cb;
+}
+
+.planned-post-card {
+  scroll-margin-top: 7rem;
+}
+
+.planned-post-card--highlighted {
+  border-color: #4b92cb;
+  box-shadow: 0 0 0 4px rgba(119, 176, 222, 0.2), 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 767.98px) {
+  .planned-posts-calendar {
+    padding: 1rem;
+  }
+
+  .planned-posts-calendar__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .planned-posts-calendar__controls {
+    grid-template-columns: 2.4rem 1fr 2.4rem;
+  }
+
+  .planned-posts-calendar__weekdays,
+  .planned-posts-calendar__grid {
+    gap: 0.3rem;
+  }
+
+  .planned-posts-calendar__weekdays {
+    font-size: 0.68rem;
+  }
+
+  .planned-posts-calendar__day {
+    min-height: 2.75rem;
+    padding: 0.4rem;
+    border-radius: 8px;
+  }
+
+  .planned-posts-calendar__day-marker {
+    right: 0.35rem;
+    bottom: 0.35rem;
+  }
+}
+
+/* Blog quiz shortcode */
+.jv-quiz {
+  --jv-quiz-accent: #77B0DE;
+  --jv-quiz-accent-dark: #4b92cb;
+  --jv-quiz-success: #198754;
+  --jv-quiz-danger: #dc3545;
+  --jv-quiz-progress-pending: rgba(119, 176, 222, 0.28);
+  --jv-quiz-soft-success: rgba(25, 135, 84, 0.12);
+  --jv-quiz-soft-danger: rgba(220, 53, 69, 0.12);
+  --jv-quiz-card-shadow: 0 16px 38px rgba(14, 32, 44, 0.08);
+
+  margin: 2rem 0;
+}
+
+.jv-quiz__inner,
+.jv-quiz__noscript,
+.jv-quiz__error {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 18px;
+  background: var(--bs-body-bg);
+  box-shadow: var(--jv-quiz-card-shadow);
+}
+
+.jv-quiz__inner {
+  overflow: hidden;
+  padding: 1.35rem;
+}
+
+.jv-quiz__noscript,
+.jv-quiz__error {
+  padding: 1rem 1.25rem;
+}
+
+.jv-quiz__error {
+  border-color: rgba(220, 53, 69, 0.45);
+  background: var(--jv-quiz-soft-danger);
+}
+
+.jv-quiz__error p {
+  margin: 0.35rem 0 0;
+}
+
+.jv-quiz__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.jv-quiz__eyebrow {
+  margin: 0 0 0.3rem;
+  color: var(--jv-quiz-accent-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.jv-quiz__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+}
+
+.jv-quiz__intro {
+  margin: 0.45rem 0 0;
+  color: var(--bs-secondary-color);
+}
+
+.jv-quiz__score {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  background: rgba(119, 176, 222, 0.16);
+  color: var(--jv-quiz-accent-dark);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.jv-quiz__progress {
+  --jv-quiz-correct-end: 0%;
+  --jv-quiz-answered-end: 0%;
+
+  min-height: 0.8rem;
+  margin: 0.35rem 0 0.55rem;
+  border: 1px solid rgba(119, 176, 222, 0.34);
+  border-radius: 999px;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    var(--jv-quiz-success) 0 var(--jv-quiz-correct-end),
+    var(--jv-quiz-danger) var(--jv-quiz-correct-end) var(--jv-quiz-answered-end),
+    var(--jv-quiz-progress-pending) var(--jv-quiz-answered-end) 100%
+  );
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transition: background 0.25s ease;
+}
+
+.jv-quiz__status {
+  margin: 0 0 1rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.95rem;
+}
+
+.jv-quiz__questions {
+  display: grid;
+  gap: 1rem;
+}
+
+.jv-quiz__question {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 16px;
+  padding: 1.1rem;
+  background: rgba(119, 176, 222, 0.04);
+}
+
+.jv-quiz__question.is-correct {
+  border-color: rgba(25, 135, 84, 0.4);
+}
+
+.jv-quiz__question.is-incorrect {
+  border-color: rgba(220, 53, 69, 0.4);
+}
+
+.jv-quiz__question-meta {
+  margin: 0 0 0.35rem;
+  color: var(--jv-quiz-accent-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.jv-quiz__question-title {
+  margin: 0 0 0.9rem;
+  font-size: 1.15rem;
+}
+
+.jv-quiz__answers {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.jv-quiz__answer-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  width: 100%;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 12px;
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+}
+
+.jv-quiz__answer-option:hover,
+.jv-quiz__answer-option:focus-within {
+  border-color: var(--jv-quiz-accent);
+  box-shadow: 0 0 0 0.18rem rgba(119, 176, 222, 0.18);
+  transform: translateY(-1px);
+}
+
+.jv-quiz__answer-input {
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.12rem;
+  accent-color: var(--jv-quiz-accent);
+  cursor: pointer;
+}
+
+.jv-quiz__answer-text {
+  display: block;
+  line-height: 1.45;
+}
+
+.jv-quiz__answer-option.is-selected {
+  border-width: 2px;
+}
+
+.jv-quiz__answer-option.is-correct {
+  border-color: var(--jv-quiz-success);
+  background: var(--jv-quiz-soft-success);
+}
+
+.jv-quiz__answer-option.is-correct .jv-quiz__answer-input {
+  accent-color: var(--jv-quiz-success);
+}
+
+.jv-quiz__answer-option.is-incorrect {
+  border-color: var(--jv-quiz-danger);
+  background: var(--jv-quiz-soft-danger);
+}
+
+.jv-quiz__answer-option.is-incorrect .jv-quiz__answer-input {
+  accent-color: var(--jv-quiz-danger);
+}
+
+.jv-quiz__answer-input:disabled,
+.jv-quiz__answer-input:disabled + .jv-quiz__answer-text {
+  cursor: default;
+}
+
+.jv-quiz__answer-option:has(.jv-quiz__answer-input:disabled) {
+  cursor: default;
+}
+
+.jv-quiz__feedback {
+  margin-top: 0.9rem;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+}
+
+.jv-quiz__feedback.is-correct {
+  background: var(--jv-quiz-soft-success);
+  border: 1px solid rgba(25, 135, 84, 0.35);
+}
+
+.jv-quiz__feedback.is-incorrect {
+  background: var(--jv-quiz-soft-danger);
+  border: 1px solid rgba(220, 53, 69, 0.35);
+}
+
+.jv-quiz__feedback-title {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.jv-quiz__feedback-text,
+.jv-quiz__reference {
+  margin: 0.25rem 0 0;
+}
+
+.jv-quiz__reference-label {
+  font-weight: 700;
+}
+
+.jv-quiz__summary {
+  margin-top: 1.15rem;
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.jv-quiz__summary.is-perfect {
+  background: var(--jv-quiz-soft-success);
+  border: 1px solid rgba(25, 135, 84, 0.35);
+}
+
+.jv-quiz__summary.is-review-needed {
+  background: rgba(119, 176, 222, 0.09);
+  border: 1px solid rgba(119, 176, 222, 0.28);
+}
+
+.jv-quiz__summary-title {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.jv-quiz__summary-text {
+  margin: 0 0 0.85rem;
+}
+
+.jv-quiz__confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .jv-quiz__inner {
+    padding: 1rem;
+  }
+
+  .jv-quiz__header {
+    display: block;
+  }
+
+  .jv-quiz__score {
+    display: inline-block;
+    margin-top: 0.85rem;
+  }
+}

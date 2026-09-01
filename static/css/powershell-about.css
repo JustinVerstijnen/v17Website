@@ -1,0 +1,2325 @@
+.ps-about {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+body.has-ps-about-page {
+  --ps-about-navbar-offset: 0px;
+  --ps-about-background-image: url("https://sajvwebsiteblobstorage.blob.core.windows.net/blog/tools-2375/featured-background_blur.jpg");
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.7)),
+    var(--ps-about-background-image) center / cover fixed no-repeat;
+}
+
+body.has-ps-about-page .td-main,
+body.has-ps-about-page main {
+  background: transparent;
+}
+
+body.has-ps-about-page .td-main {
+  padding-top: calc(var(--ps-about-navbar-offset) + 0.75rem);
+}
+
+body.has-ps-about-page.ps-about-intro-active .td-footer {
+  visibility: hidden;
+  opacity: 0;
+}
+
+body.has-ps-about-page .ps-about,
+body.has-ps-about-page .ps-markdown,
+body.has-ps-about-page .ps-markdown h1,
+body.has-ps-about-page .ps-markdown h2,
+body.has-ps-about-page .ps-markdown h3,
+body.has-ps-about-page .ps-markdown h4,
+body.has-ps-about-page .ps-markdown h5,
+body.has-ps-about-page .ps-markdown h6,
+body.has-ps-about-page .ps-markdown [id] {
+  scroll-margin-top: calc(var(--ps-about-navbar-offset) + 1rem);
+}
+
+.ps-terminal-wrapper {
+  width: min(100%, 1180px);
+  max-width: calc(100vw - 1.5rem);
+  margin: 0 auto 2rem;
+  background: #0b1220;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.38);
+  overflow: hidden;
+  box-sizing: border-box;
+  max-height: 900px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.45s ease, margin 0.45s ease;
+}
+
+.ps-terminal-wrapper.is-hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+  margin-bottom: 0;
+  pointer-events: none;
+}
+
+.ps-terminal-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 46px;
+  padding: 0.38rem 0.4rem 0.38rem 0.85rem;
+  background: linear-gradient(180deg, rgba(46, 51, 58, 0.98) 0%, rgba(36, 40, 46, 0.98) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ps-terminal-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.ps-terminal-app-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #2b7cd3 0%, #1d5fa7 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.ps-terminal-app-icon-angle {
+  font-size: 0.7rem;
+  line-height: 1;
+  transform: translate(-1px, -1px);
+}
+
+.ps-terminal-app-icon-underscore {
+  position: absolute;
+  right: 2px;
+  bottom: 0px;
+  font-size: 0.6rem;
+  line-height: 1;
+  opacity: 0.95;
+}
+
+.ps-terminal-app-title {
+  color: #f5f7fa;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ps-terminal-controls {
+  display: inline-flex;
+  align-items: stretch;
+  margin-right: -0.15rem;
+}
+
+.ps-terminal-control {
+  position: relative;
+  width: 46px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: default;
+}
+
+.ps-terminal-control span,
+.ps-terminal-control::before,
+.ps-terminal-control::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ps-terminal-control.is-minimize::before {
+  width: 10px;
+  height: 1.5px;
+  background: currentColor;
+  margin-top: 4px;
+}
+
+.ps-terminal-control.is-maximize::before {
+  width: 10px;
+  height: 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 1px;
+}
+
+.ps-terminal-control.is-close::before,
+.ps-terminal-control.is-close::after {
+  width: 10px;
+  height: 1.5px;
+  background: currentColor;
+}
+
+.ps-terminal-control.is-close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.ps-terminal-control.is-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.ps-terminal-control.is-close {
+  border-top-right-radius: 12px;
+}
+
+.ps-terminal-control:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ps-terminal-control.is-close:hover {
+  background: #c42b1c;
+}
+
+
+.ps-terminal {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 1.25rem 1.35rem;
+  min-height: 220px;
+  color: #e6edf7;
+  background: linear-gradient(180deg, #0b1220 0%, #0a1628 100%);
+  font-family: Consolas, "Cascadia Mono", "Courier New", monospace;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  word-break: break-word;
+}
+
+.ps-prompt {
+  color: #d8e4f5;
+}
+
+.ps-command {
+  color: #f2cc60;
+}
+
+.ps-output {
+  color: #c9d6e7;
+}
+
+
+.ps-token-variable {
+  color: #7ee787;
+}
+
+.ps-token-command {
+  color: #f2cc60;
+}
+
+.ps-token-operator {
+  color: #ff7b72;
+}
+
+.ps-token-script {
+  color: #79c0ff;
+}
+
+.ps-token-number {
+  color: #a5d6ff;
+}
+
+.ps-cursor {
+  display: inline-block;
+  width: 0.6ch;
+  color: #ffffff;
+  animation: ps-terminal-blink 1s step-end infinite;
+}
+
+@keyframes ps-terminal-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.ps-markdown {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 1rem;
+  color: inherit;
+  font-family: inherit;
+  animation: ps-fade-in 0.35s ease;
+}
+
+.ps-markdown.about-hidden {
+  display: none;
+}
+
+@keyframes ps-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ps-markdown,
+.ps-markdown * {
+  font-family: inherit;
+}
+
+.ps-markdown > * {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ps-markdown h1,
+.ps-markdown h2,
+.ps-markdown h3,
+.ps-markdown h4,
+.ps-markdown h5,
+.ps-markdown h6 {
+  text-align: left;
+  line-height: 1.2;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.ps-markdown h2 {
+  margin-top: 3rem;
+}
+
+.ps-markdown h3 {
+  margin-top: 2rem;
+}
+
+.ps-markdown > p:first-of-type {
+  text-align: left;
+  font-size: 1.08rem;
+  line-height: 1.85;
+  max-width: 960px;
+  margin-bottom: 2rem;
+}
+
+.ps-markdown p,
+.ps-markdown li,
+.ps-markdown td,
+.ps-markdown th,
+.ps-markdown blockquote {
+  text-align: left;
+  line-height: 1.8;
+}
+
+.ps-markdown p {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+.ps-markdown ul,
+.ps-markdown ol {
+  padding-left: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+.ps-markdown li + li {
+  margin-top: 0.3rem;
+}
+
+.ps-markdown a {
+  text-underline-offset: 0.14em;
+}
+
+.ps-markdown .about-two-columns {
+  max-width: 1180px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+  align-items: start;
+  margin: 2.25rem auto 2.75rem;
+}
+
+.ps-markdown .about-card {
+  width: 100%;
+  max-width: none;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  padding: 1.5rem 1.5rem 1.25rem;
+  box-sizing: border-box;
+}
+
+.ps-markdown .about-card h2,
+.ps-markdown .about-card h3,
+.ps-markdown .about-card h4 {
+  margin-top: 0;
+  margin-bottom: 0.9rem;
+}
+
+.ps-markdown .about-card ul,
+.ps-markdown .about-card ol {
+  margin-bottom: 0;
+}
+
+.ps-markdown table {
+  width: 100%;
+  max-width: 1180px;
+  border-collapse: collapse;
+  margin: 1rem auto 2.5rem;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.ps-markdown thead th {
+  text-align: left;
+  font-weight: 700;
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ps-markdown tbody td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  vertical-align: top;
+}
+
+.ps-markdown tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ps-markdown tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.035);
+}
+
+.ps-markdown img,
+.ps-markdown video,
+.ps-markdown iframe {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ps-markdown pre,
+.ps-markdown code {
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+}
+
+.ps-markdown pre {
+  max-width: 1180px;
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+@media (max-width: 900px) {
+  body.has-ps-about-page .td-main {
+    padding-top: calc(var(--ps-about-navbar-offset) + 0.5rem);
+  }
+
+  .ps-markdown {
+    padding: 2.25rem 1rem 1rem;
+  }
+
+  .ps-markdown .about-two-columns {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.75rem auto 2.25rem;
+  }
+
+  .ps-markdown > * {
+    max-width: 100%;
+  }
+
+  .ps-markdown > p:first-of-type {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  .ps-terminal-wrapper {
+    border-radius: 14px;
+  }
+
+  .ps-terminal {
+    padding: 0.95rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .ps-markdown table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-terminal-wrapper,
+  .ps-markdown,
+  .ps-cursor {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .ps-terminal-chrome {
+    padding-left: 0.65rem;
+    min-height: 42px;
+  }
+
+  .ps-terminal-app-title {
+    font-size: 0.86rem;
+  }
+
+  .ps-terminal-control {
+    width: 38px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .ps-terminal {
+    padding: 1rem 0.95rem;
+    font-size: 0.92rem;
+  }
+}
+
+/* Modern About page sections */
+.ps-markdown .about-hero-panel,
+.ps-markdown .about-section,
+.ps-markdown .about-story-section {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ps-markdown .about-hero-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+  gap: 1.4rem;
+  align-items: stretch;
+  margin-top: 0.25rem;
+  margin-bottom: 3rem;
+  padding: clamp(1.4rem, 3vw, 2rem);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 30px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.5)),
+    radial-gradient(circle at top left, rgba(43, 124, 211, 0.15), transparent 32rem);
+  box-shadow: 0 24px 60px rgba(52, 79, 115, 0.15);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+
+.ps-markdown .about-hero-aside {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.ps-markdown .about-profile-card {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.56);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ps-markdown .about-profile-photo {
+  overflow: hidden;
+  border-radius: 18px;
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(135deg, rgba(142, 175, 218, 0.18), rgba(255, 255, 255, 0.72));
+  border: 1px solid rgba(91, 115, 150, 0.12);
+}
+
+.ps-markdown .about-profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin: 0;
+}
+
+.ps-markdown .about-profile-card figcaption {
+  margin-top: 0.85rem;
+  color: rgba(33, 37, 41, 0.68);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.ps-markdown .about-hero-content,
+.ps-markdown .about-hero-highlight,
+.ps-markdown .about-section-header,
+.ps-markdown .about-feature-card,
+.ps-markdown .about-build-card,
+.ps-markdown .about-github-card {
+  max-width: none;
+}
+
+.ps-markdown .about-eyebrow {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1d5fa7;
+}
+
+.ps-markdown .about-hero-panel h2,
+.ps-markdown .about-section-header h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.ps-markdown .about-lead,
+.ps-markdown .about-section-header p:not(.about-eyebrow) {
+  margin-bottom: 0;
+  max-width: 760px;
+  color: rgba(33, 37, 41, 0.78);
+  font-size: 1.08rem;
+  line-height: 1.75;
+}
+
+.ps-markdown .about-hero-highlight {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.65rem;
+  padding: 1.1rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ps-markdown .about-hero-highlight span,
+.ps-markdown .about-chip-list span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(43, 124, 211, 0.09);
+  border: 1px solid rgba(43, 124, 211, 0.18);
+  color: #174c83;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.48rem 0.72rem;
+}
+
+.ps-markdown .about-section {
+  margin-top: 3.25rem;
+  margin-bottom: 3.25rem;
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 18px 45px rgba(52, 79, 115, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ps-markdown .about-section-header {
+  margin-bottom: 1.5rem;
+}
+
+.ps-markdown .about-feature-grid {
+  max-width: 1180px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem auto 2rem;
+}
+
+.ps-markdown .about-feature-card,
+.ps-markdown .about-card-modern,
+.ps-markdown .about-build-card,
+.ps-markdown .about-github-card,
+.ps-markdown .about-site-preview {
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 22px;
+  box-shadow: 0 14px 34px rgba(52, 79, 115, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ps-markdown .about-feature-card {
+  padding: 1.35rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.ps-markdown .about-feature-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(142, 175, 218, 0.8);
+  box-shadow: 0 18px 42px rgba(52, 79, 115, 0.14);
+}
+
+.ps-markdown .about-feature-card-large {
+  grid-column: span 1;
+}
+
+.ps-markdown .about-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-bottom: 1rem;
+  border-radius: 14px;
+  color: #1d5fa7;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 24px rgba(52, 79, 115, 0.1);
+  font-weight: 800;
+}
+
+.ps-markdown .about-feature-card h3,
+.ps-markdown .about-build-card h3,
+.ps-markdown .about-github-card h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1.16rem;
+}
+
+.ps-markdown .about-feature-card p,
+.ps-markdown .about-feature-card li,
+.ps-markdown .about-build-card p,
+.ps-markdown .about-github-card p {
+  margin-bottom: 0;
+  color: rgba(33, 37, 41, 0.76);
+  line-height: 1.72;
+}
+
+.ps-markdown .about-modern-columns {
+  margin-top: 1rem;
+}
+
+.ps-markdown .about-card-modern {
+  padding: 1.5rem;
+}
+
+.ps-markdown .about-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.ps-markdown .about-link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.ps-markdown .about-link-grid a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.7rem;
+  padding: 0.72rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.56);
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ps-markdown .about-link-grid a::after {
+  content: "↗";
+  flex: 0 0 auto;
+  opacity: 0.5;
+}
+
+.ps-markdown .about-link-grid a:hover {
+  transform: translateY(-2px);
+  border-color: rgba(43, 124, 211, 0.32);
+  background: rgba(43, 124, 211, 0.07);
+  text-decoration: none;
+}
+
+.ps-markdown .about-story-section {
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border-left: 4px solid rgba(29, 95, 167, 0.75);
+  border-radius: 0 24px 24px 0;
+  background: rgba(255, 255, 255, 0.52);
+  border-top: 1px solid rgba(255, 255, 255, 0.62);
+  border-right: 1px solid rgba(255, 255, 255, 0.62);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow: 0 18px 45px rgba(52, 79, 115, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ps-markdown .about-story-section h2:first-child {
+  margin-top: 0;
+}
+
+.ps-markdown .about-certifications-section table {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+}
+
+.ps-markdown .about-section-site {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.46)),
+    radial-gradient(circle at top right, rgba(43, 124, 211, 0.1), transparent 30rem);
+}
+
+.ps-markdown .about-build-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.5fr) minmax(0, 1.5fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin: 1.25rem auto;
+  padding: 1.35rem;
+}
+
+.ps-markdown .about-build-content * {
+  max-width: 100%;
+}
+
+.ps-markdown .about-site-preview {
+  max-width: 1180px;
+  margin: 1.25rem auto;
+  padding: 0.8rem;
+  overflow: hidden;
+}
+
+.ps-markdown .about-site-preview img {
+  margin: 0;
+  width: 100%;
+  border-radius: 16px;
+}
+
+.ps-markdown .about-github-card {
+  max-width: 1180px;
+  margin: 1.25rem auto 0;
+  padding: 1.35rem;
+}
+
+.ps-markdown .about-github-card-header {
+  margin-bottom: 1rem;
+}
+
+.ps-markdown #github-contributions-widget {
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+}
+
+.ps-markdown .github-commit {
+  padding: 1rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ps-markdown .github-commit:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.ps-markdown .github-commit:last-child {
+  padding-bottom: 0;
+}
+
+.ps-markdown .github-commit-title {
+  margin-bottom: 0.35rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.ps-markdown .github-commit-title a {
+  text-decoration: none;
+}
+
+.ps-markdown .github-commit-title a:hover {
+  text-decoration: underline;
+}
+
+.ps-markdown .github-commit-meta {
+  color: rgba(33, 37, 41, 0.62);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .ps-markdown .about-hero-panel,
+  .ps-markdown .about-build-card {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-hero-aside {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-section-site,
+  .ps-markdown .about-story-section,
+  .ps-markdown .about-hero-panel {
+    padding: 1.25rem;
+  }
+
+  .ps-markdown .about-hero-panel h2,
+  .ps-markdown .about-section-header h2 {
+    font-size: clamp(1.85rem, 8vw, 2.5rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-hero-highlight {
+    padding: 1rem;
+  }
+
+  .ps-markdown .about-profile-card figcaption {
+    font-size: 0.84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-markdown .about-feature-card,
+  .ps-markdown .about-link-grid a {
+    transition: none !important;
+  }
+
+  .ps-markdown .about-feature-card:hover,
+  .ps-markdown .about-link-grid a:hover {
+    transform: none;
+  }
+}
+
+.ps-markdown .about-chip-list a {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(43, 124, 211, 0.09);
+  border: 1px solid rgba(43, 124, 211, 0.18);
+  color: #174c83;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.48rem 0.72rem;
+  text-decoration: none;
+}
+
+.ps-markdown .about-chip-list a:hover {
+  background: rgba(43, 124, 211, 0.14);
+  text-decoration: none;
+}
+
+/* Refined compact glass layout */
+.ps-markdown .about-hero-panel,
+.ps-markdown .about-section,
+.ps-markdown .about-expand-grid {
+  width: min(1180px, calc(100vw - 2rem));
+}
+
+.ps-markdown .about-hero-panel {
+  grid-template-columns: minmax(0, 1fr) 240px;
+}
+
+.ps-markdown .about-hero-aside {
+  justify-items: center;
+}
+
+.ps-markdown .about-profile-card {
+  width: 200px;
+  padding: 0.75rem;
+}
+
+.ps-markdown .about-profile-photo {
+  width: 200px;
+  height: 200px;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+}
+
+.ps-markdown .about-profile-card figcaption {
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.ps-markdown .about-compact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ps-markdown .about-feature-card,
+.ps-markdown .about-card-modern,
+.ps-markdown .about-build-card,
+.ps-markdown .about-github-card,
+.ps-markdown .about-site-preview,
+.ps-markdown .about-expand-card {
+  border-radius: 20px;
+}
+
+.ps-markdown .about-feature-card {
+  padding: 1.1rem;
+}
+
+.ps-markdown .about-feature-card p,
+.ps-markdown .about-card-modern p,
+.ps-markdown .about-build-card p,
+.ps-markdown .about-github-card p {
+  font-size: 0.95rem;
+}
+
+.ps-markdown .about-expand-grid {
+  max-width: 1180px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 3.25rem auto;
+}
+
+.ps-markdown .about-expand-card {
+  max-width: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 18px 45px rgba(52, 79, 115, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+
+.ps-markdown .about-expand-card summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ps-markdown .about-expand-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.ps-markdown .about-expand-card summary strong {
+  display: block;
+  font-size: 1.18rem;
+  line-height: 1.25;
+}
+
+.ps-markdown .about-summary-action {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(43, 124, 211, 0.09);
+  border: 1px solid rgba(43, 124, 211, 0.18);
+  color: #174c83;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.55rem 0.7rem;
+}
+
+.ps-markdown .about-expand-card[open] .about-summary-action {
+  color: #ffffff;
+  background: #1d5fa7;
+  border-color: #1d5fa7;
+}
+
+.ps-markdown .about-expand-card[open] .about-summary-action::before {
+  content: "Collapse";
+}
+
+.ps-markdown .about-expand-card[open] .about-summary-action {
+  font-size: 0;
+}
+
+.ps-markdown .about-expand-card[open] .about-summary-action::before {
+  font-size: 0.82rem;
+}
+
+.ps-markdown .about-expand-content {
+  max-height: 340px;
+  overflow: auto;
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid rgba(91, 115, 150, 0.14);
+}
+
+.ps-markdown .about-expand-card[open] .about-expand-content {
+  animation: ps-fade-in 0.25s ease;
+}
+
+.ps-markdown .about-expand-content h3 {
+  margin-top: 1.35rem;
+}
+
+.ps-markdown .about-certification-list table {
+  margin: 0;
+  max-width: none;
+  font-size: 0.92rem;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.ps-markdown .about-build-card-clean {
+  grid-template-columns: minmax(180px, 0.55fr) minmax(0, 1.45fr);
+}
+
+.ps-markdown .about-build-card-clean .about-chip-list {
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .ps-markdown .about-hero-panel,
+  .ps-markdown .about-expand-grid,
+  .ps-markdown .about-compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-hero-panel,
+  .ps-markdown .about-section,
+  .ps-markdown .about-expand-grid {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .ps-markdown .about-profile-card,
+  .ps-markdown .about-profile-photo {
+    width: 180px;
+  }
+
+  .ps-markdown .about-profile-photo {
+    height: 180px;
+  }
+}
+
+.ps-markdown .about-expand-card summary em {
+  display: block;
+  margin-top: 0.45rem;
+  color: rgba(33, 37, 41, 0.68);
+  font-size: 0.92rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.ps-markdown .about-expand-card:not([open]) {
+  min-height: 170px;
+}
+
+/* Refinements: aligned glass tiles, compact profile image and wider copy blocks */
+.ps-markdown .about-hero-panel {
+  grid-template-columns: minmax(0, 1fr) 240px;
+}
+
+.ps-markdown .about-hero-content {
+  align-self: center;
+}
+
+.ps-markdown .about-hero-aside {
+  justify-items: end;
+  align-content: center;
+}
+
+.ps-markdown .about-profile-card {
+  width: 200px;
+  max-width: 200px;
+  padding: 0.75rem;
+}
+
+.ps-markdown .about-profile-photo {
+  width: 200px;
+  height: 200px;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+}
+
+.ps-markdown .about-profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ps-markdown .about-profile-card figcaption {
+  display: none;
+}
+
+.ps-markdown .about-skill-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  max-width: none;
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ps-markdown .about-skill-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.25rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(43, 124, 211, 0.18);
+  color: #174c83;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.2;
+  padding: 0.48rem 0.72rem;
+  box-shadow: 0 8px 20px rgba(52, 79, 115, 0.08);
+}
+
+.ps-markdown .about-skill-row i {
+  color: #1d5fa7;
+  font-size: 0.95rem;
+}
+
+.ps-markdown .about-section-header p:not(.about-eyebrow),
+.ps-markdown .about-lead,
+.ps-markdown .about-feature-card p,
+.ps-markdown .about-build-card p,
+.ps-markdown .about-github-card p {
+  max-width: none;
+}
+
+.ps-markdown .about-compact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ps-markdown .about-two-columns.about-modern-columns {
+  gap: 1rem;
+  align-items: start;
+}
+
+.ps-markdown .about-card-modern.about-item-card {
+  padding: 1.35rem;
+}
+
+.ps-markdown .about-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+  max-width: none;
+}
+
+.ps-markdown .about-hobby-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ps-markdown .about-social-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ps-markdown .about-tile {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0.72rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.58);
+  color: #2f83d2;
+  font-weight: 750;
+  line-height: 1.25;
+  text-decoration: none;
+  box-shadow: 0 9px 22px rgba(52, 79, 115, 0.08);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ps-markdown .about-tile i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  min-width: 1.1rem;
+  color: #1d5fa7;
+  font-size: 1rem;
+}
+
+.ps-markdown a.about-tile::after {
+  content: "↗";
+  margin-left: auto;
+  width: 1rem;
+  height: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  color: #ffffff;
+  background: rgba(43, 124, 211, 0.38);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.ps-markdown .about-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(142, 175, 218, 0.86);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 30px rgba(52, 79, 115, 0.13);
+  text-decoration: none;
+}
+
+.ps-markdown .about-expand-grid {
+  max-width: 1180px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 3.25rem auto;
+}
+
+.ps-markdown .about-expand-card {
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.54);
+  box-shadow: 0 18px 45px rgba(52, 79, 115, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ps-markdown .about-expand-card summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  min-height: 16rem;
+  padding: 1.6rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ps-markdown .about-expand-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.ps-markdown .about-expand-summary-content {
+  display: block;
+  min-width: 0;
+}
+
+.ps-markdown .about-expand-card summary strong {
+  display: block;
+  margin-bottom: 0.7rem;
+  color: #212529;
+  font-size: clamp(1.45rem, 2vw, 1.85rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.ps-markdown .about-expand-card summary em {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  color: rgba(33, 37, 41, 0.76);
+  font-size: 1rem;
+  font-style: normal;
+  line-height: 1.75;
+}
+
+.ps-markdown .about-summary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(43, 124, 211, 0.18);
+  background: rgba(43, 124, 211, 0.09);
+  color: #174c83;
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ps-markdown .about-expand-card[open] .about-summary-action {
+  font-size: 0;
+}
+
+.ps-markdown .about-expand-card[open] .about-summary-action::before {
+  content: "Collapse";
+  font-size: 0.85rem;
+}
+
+.ps-markdown .about-expand-content {
+  padding: 0 1.6rem 1.6rem;
+  max-width: none;
+}
+
+.ps-markdown .about-expand-content > * {
+  max-width: none;
+}
+
+.ps-markdown .about-expand-content p {
+  margin-bottom: 1rem;
+}
+
+.ps-markdown .about-expand-content h3 {
+  margin-top: 1.25rem;
+}
+
+.ps-markdown .about-certification-list table {
+  display: table;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  white-space: normal;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.ps-markdown .about-build-card-clean {
+  grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+}
+
+.ps-markdown .about-build-preview {
+  display: block;
+  margin-top: 1.15rem;
+  padding: 0.75rem;
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 12px 30px rgba(52, 79, 115, 0.1);
+}
+
+.ps-markdown .about-build-preview img {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border-radius: 14px;
+}
+
+.ps-markdown .about-site-preview {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .ps-markdown .about-hero-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-hero-aside {
+    justify-items: start;
+  }
+
+  .ps-markdown .about-expand-grid,
+  .ps-markdown .about-two-columns.about-modern-columns,
+  .ps-markdown .about-compact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-profile-card,
+  .ps-markdown .about-profile-photo {
+    width: 160px;
+    max-width: 160px;
+    height: 160px;
+  }
+
+  .ps-markdown .about-tile-grid,
+  .ps-markdown .about-hobby-grid,
+  .ps-markdown .about-social-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-expand-card summary {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 1.25rem;
+  }
+
+  .ps-markdown .about-expand-content {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .ps-markdown .about-build-card-clean {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Layout update: no external icon font dependency, compact grouped sections */
+.ps-markdown .about-justin-panel {
+  grid-template-columns: minmax(0, 1fr) 220px;
+}
+
+.ps-markdown .about-hero-bottom-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  max-width: none;
+}
+
+.ps-markdown .about-inline-expand-card {
+  max-width: none;
+  min-height: 0;
+}
+
+.ps-markdown .about-inline-expand-card summary {
+  min-height: 17rem;
+}
+
+.ps-markdown .about-hero-bottom-grid .about-card-modern,
+.ps-markdown .about-two-columns.about-modern-columns > .about-card-modern,
+.ps-markdown .about-two-columns.about-modern-columns > .about-inline-expand-card {
+  height: 100%;
+}
+
+.ps-markdown .about-profile-card,
+.ps-markdown .about-profile-photo {
+  width: 200px !important;
+  max-width: 200px !important;
+}
+
+.ps-markdown .about-profile-photo {
+  height: 200px !important;
+}
+
+.ps-markdown .about-skill-row {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: thin;
+}
+
+.ps-markdown .about-skill-row span {
+  flex: 0 0 auto;
+}
+
+.ps-markdown .about-tile-icon,
+.ps-markdown .about-card-icon {
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ps-markdown .about-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  min-width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 0.5rem;
+  color: #1d5fa7;
+  background: rgba(43, 124, 211, 0.1);
+  border: 1px solid rgba(43, 124, 211, 0.16);
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.ps-markdown .about-tile i,
+.ps-markdown .about-skill-row i,
+.ps-markdown .about-card-icon i {
+  display: none !important;
+}
+
+.ps-markdown .about-feature-grid.about-site-grid.about-compact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ps-markdown .about-build-card-clean {
+  align-items: start;
+}
+
+.ps-markdown .about-build-preview {
+  max-width: 100%;
+}
+
+@media (max-width: 1000px) {
+  .ps-markdown .about-justin-panel,
+  .ps-markdown .about-hero-bottom-grid,
+  .ps-markdown .about-feature-grid.about-site-grid.about-compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-markdown .about-inline-expand-card summary {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-profile-card,
+  .ps-markdown .about-profile-photo {
+    width: 160px !important;
+    max-width: 160px !important;
+  }
+
+  .ps-markdown .about-profile-photo {
+    height: 160px !important;
+  }
+}
+
+/* Final layout refinements for About page */
+.ps-markdown .about-profile-card {
+  width: 125px !important;
+  max-width: 125px !important;
+  height: auto !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.ps-markdown .about-profile-photo {
+  width: 125px !important;
+  max-width: 125px !important;
+  height: 125px !important;
+  overflow: hidden;
+  border-radius: 999px !important;
+  background: transparent !important;
+  border: 3px solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 14px 30px rgba(52, 79, 115, 0.26) !important;
+}
+
+.ps-markdown .about-profile-photo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+}
+
+.ps-markdown .about-hero-aside {
+  align-content: center;
+  justify-items: center;
+}
+
+.ps-markdown .about-tile-panel,
+.ps-markdown .about-work-focus-card,
+.ps-markdown .about-click-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ps-markdown .about-tile-panel.about-feature-card,
+.ps-markdown .about-tile-panel.about-card-modern {
+  padding: 1.35rem;
+}
+
+.ps-markdown .about-tile-panel h3,
+.ps-markdown .about-work-focus-card h3,
+.ps-markdown .about-click-card h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1.16rem;
+}
+
+.ps-markdown .about-tile-grid {
+  margin-top: 1rem;
+}
+
+.ps-markdown .about-tile {
+  min-height: 2.85rem;
+  background: rgba(255, 255, 255, 0.56);
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 8px 18px rgba(52, 79, 115, 0.07);
+}
+
+.ps-markdown .about-tile-icon {
+  color: #1d5fa7;
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 6px 16px rgba(52, 79, 115, 0.08);
+}
+
+.ps-markdown .about-work-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  max-width: 1180px;
+  margin: 1.5rem auto 0;
+}
+
+.ps-markdown .about-work-side {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.ps-markdown .about-certifications-card,
+.ps-markdown .about-work-side > * {
+  height: 100%;
+}
+
+.ps-markdown .about-certifications-card summary {
+  min-height: 0;
+  align-items: start;
+}
+
+.ps-markdown .about-cert-preview {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  max-width: none;
+}
+
+.ps-markdown .about-cert-preview > span {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.66rem 0.75rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.ps-markdown .about-cert-preview strong {
+  font-size: 0.92rem !important;
+  line-height: 1.35 !important;
+}
+
+.ps-markdown .about-cert-preview small {
+  color: #1d5fa7;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ps-markdown .about-certifications-card[open] .about-cert-preview {
+  display: none;
+}
+
+.ps-markdown .about-site-link-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.ps-markdown .about-click-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ps-markdown .about-click-card::after {
+  content: "↗";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin-top: 1rem;
+  border-radius: 999px;
+  color: #1d5fa7;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  font-weight: 800;
+}
+
+.ps-markdown .about-click-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(142, 175, 218, 0.8);
+  box-shadow: 0 18px 42px rgba(52, 79, 115, 0.14);
+  text-decoration: none;
+}
+
+@media (max-width: 1000px) {
+  .ps-markdown .about-work-layout,
+  .ps-markdown .about-site-link-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-profile-card,
+  .ps-markdown .about-profile-photo {
+    width: 112px !important;
+    max-width: 112px !important;
+  }
+
+  .ps-markdown .about-profile-photo {
+    height: 112px !important;
+  }
+}
+
+/* Requested layout update: move work areas, stack story/certifications, compact profile */
+.ps-markdown .about-justin-panel {
+  grid-template-columns: minmax(0, 1fr) 145px !important;
+  align-items: start !important;
+}
+
+.ps-markdown .about-hero-content {
+  align-self: start;
+}
+
+.ps-markdown .about-hero-aside {
+  align-content: start !important;
+  align-items: start !important;
+  justify-items: center !important;
+  padding-top: 0.15rem;
+}
+
+.ps-markdown .about-profile-card {
+  width: 125px !important;
+  max-width: 125px !important;
+  margin: 0 !important;
+}
+
+.ps-markdown .about-profile-photo {
+  width: 125px !important;
+  max-width: 125px !important;
+  height: 125px !important;
+}
+
+.ps-markdown .about-competency-row {
+  max-width: 100%;
+  margin-top: 1.25rem;
+}
+
+.ps-markdown .about-hero-bottom-grid.about-equal-card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch;
+}
+
+.ps-markdown .about-hero-bottom-grid.about-equal-card-grid > .about-tile-panel {
+  height: 100%;
+}
+
+.ps-markdown .about-work-section .about-section-header {
+  margin-bottom: 1.25rem;
+}
+
+.ps-markdown .about-work-section .about-skill-row {
+  margin-top: 1.25rem;
+}
+
+.ps-markdown .about-work-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  max-width: 1180px;
+  margin: 1.5rem auto 0;
+}
+
+.ps-markdown .about-work-stack .about-expand-card {
+  width: 100%;
+  max-width: none;
+}
+
+.ps-markdown .about-work-stack .about-expand-card summary {
+  min-height: 0 !important;
+  align-items: start;
+}
+
+.ps-markdown .about-story-preview {
+  display: -webkit-box;
+  margin-top: 0.9rem;
+  color: rgba(33, 37, 41, 0.72);
+  font-size: 0.98rem;
+  font-style: normal;
+  line-height: 1.65;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ps-markdown .about-story-card[open] .about-story-preview {
+  display: none;
+}
+
+.ps-markdown .about-certifications-card .about-cert-preview {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ps-markdown .about-tile-panel {
+  display: block;
+}
+
+.ps-markdown .about-tile-panel .about-card-icon {
+  margin-bottom: 1rem;
+}
+
+.ps-markdown .about-tile-panel h3 {
+  margin: 0 0 0.75rem;
+}
+
+@media (max-width: 1000px) {
+  .ps-markdown .about-justin-panel,
+  .ps-markdown .about-hero-bottom-grid.about-equal-card-grid,
+  .ps-markdown .about-certifications-card .about-cert-preview {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ps-markdown .about-hero-aside {
+    justify-items: start !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-profile-card,
+  .ps-markdown .about-profile-photo {
+    width: 112px !important;
+    max-width: 112px !important;
+  }
+
+  .ps-markdown .about-profile-photo {
+    height: 112px !important;
+  }
+}
+
+/* Final polish: accent colour, donation card and non-expanded story/certifications */
+.ps-markdown {
+  --about-accent: #77B0DE;
+  --about-accent-strong: #4f91c6;
+  --about-pill-bg: linear-gradient(135deg, rgba(119, 176, 222, 0.22), rgba(255, 255, 255, 0.68));
+  --about-pill-border: rgba(119, 176, 222, 0.42);
+  --about-pill-glow: 0 8px 22px rgba(119, 176, 222, 0.20);
+}
+
+.ps-markdown .about-eyebrow,
+.ps-markdown .about-card-icon,
+.ps-markdown .about-tile-icon,
+.ps-markdown .about-click-card::after,
+.ps-markdown .about-cert-tile small,
+.ps-markdown .github-commit-meta a {
+  color: var(--about-accent-strong) !important;
+}
+
+.ps-markdown .about-hero-highlight span,
+.ps-markdown .about-chip-list span,
+.ps-markdown .about-chip-list a,
+.ps-markdown .about-skill-row span,
+.ps-markdown .about-summary-action {
+  color: #1f5f8e !important;
+  background: var(--about-pill-bg) !important;
+  border-color: var(--about-pill-border) !important;
+  box-shadow: var(--about-pill-glow) !important;
+}
+
+.ps-markdown .about-card-icon,
+.ps-markdown .about-tile-icon,
+.ps-markdown .about-click-card::after {
+  background: linear-gradient(135deg, rgba(119, 176, 222, 0.2), rgba(255, 255, 255, 0.76)) !important;
+  border-color: rgba(119, 176, 222, 0.34) !important;
+  box-shadow: 0 8px 22px rgba(119, 176, 222, 0.16) !important;
+}
+
+.ps-markdown .about-feature-card:hover,
+.ps-markdown .about-click-card:hover,
+.ps-markdown .about-tile:hover {
+  border-color: rgba(119, 176, 222, 0.72) !important;
+  box-shadow: 0 18px 42px rgba(119, 176, 222, 0.18) !important;
+}
+
+.ps-markdown .about-static-story-card,
+.ps-markdown .about-static-certifications-card {
+  padding: 1.25rem;
+}
+
+.ps-markdown .about-static-story-card .about-expand-summary-content,
+.ps-markdown .about-static-certifications-card .about-expand-summary-content {
+  display: block;
+  padding: 0;
+}
+
+.ps-markdown .about-static-story-card .about-expand-summary-content strong,
+.ps-markdown .about-static-certifications-card .about-expand-summary-content strong {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.ps-markdown .about-static-certifications-card .about-expand-summary-content em {
+  display: block;
+  margin-bottom: 1.1rem;
+  color: rgba(33, 37, 41, 0.72);
+  font-style: normal;
+  line-height: 1.65;
+}
+
+.ps-markdown .about-story-content-full {
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  border-top: 0 !important;
+}
+
+.ps-markdown .about-story-content-full p:last-child {
+  margin-bottom: 0;
+}
+
+.ps-markdown .about-cert-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.ps-markdown .about-cert-tile {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-height: 92px;
+  padding: 0.9rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 10px 24px rgba(52, 79, 115, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ps-markdown .about-cert-tile strong {
+  color: rgba(33, 37, 41, 0.86);
+  font-size: 0.94rem;
+  line-height: 1.32;
+}
+
+.ps-markdown .about-cert-tile small {
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.ps-markdown .about-donation-card {
+  text-align: center;
+}
+
+.ps-markdown .about-donation-card .about-github-card-header {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ps-markdown .about-donation-card .about-github-card-header p:not(.about-eyebrow) {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ps-markdown .about-donation-button {
+  margin: 1.2rem 0 0 !important;
+  text-align: center !important;
+}
+
+.ps-markdown .about-donation-button img {
+  display: inline-block;
+  width: auto;
+  max-width: min(100%, 260px);
+  height: auto;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 14px 28px rgba(52, 79, 115, 0.16);
+}
+
+@media (max-width: 1000px) {
+  .ps-markdown .about-cert-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-cert-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Final requested visual tweaks */
+.ps-markdown .about-feature-card h3,
+.ps-markdown .about-build-card h3,
+.ps-markdown .about-github-card h3,
+.ps-markdown .about-tile-panel h3,
+.ps-markdown .about-work-focus-card h3,
+.ps-markdown .about-click-card h3,
+.ps-markdown .about-static-story-card .about-expand-summary-content strong,
+.ps-markdown .about-static-certifications-card .about-expand-summary-content strong {
+  color: #0c202E !important;
+}
+
+.ps-markdown .about-skill-row {
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.ps-markdown .about-skill-row span {
+  justify-content: center;
+  text-align: center;
+}
+
+.ps-markdown .about-story-content-full p,
+.ps-markdown .about-static-story-card p,
+.ps-markdown .about-expand-content p {
+  color: #0c202E !important;
+}
+
+.ps-markdown .about-tile-panel .about-card-icon,
+.ps-markdown .about-tile-panel .about-tile-icon {
+  display: none !important;
+}
+
+.ps-markdown .about-tile-panel .about-tile {
+  padding-left: 0.9rem;
+}
+
+.ps-markdown .about-cert-tile {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.ps-markdown .about-cert-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(119, 176, 222, 0.72) !important;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 30px rgba(119, 176, 222, 0.18) !important;
+}
+
+.ps-markdown .about-build-link-list a {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  color: #1f5f8e !important;
+  background: var(--about-pill-bg) !important;
+  border: 1px solid var(--about-pill-border) !important;
+  box-shadow: var(--about-pill-glow) !important;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.48rem 0.72rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ps-markdown .about-build-link-list a::after {
+  content: "↗";
+  margin-left: 0.45rem;
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
+.ps-markdown .about-build-link-list a:hover {
+  transform: translateY(-1px);
+  border-color: rgba(119, 176, 222, 0.76) !important;
+  box-shadow: 0 12px 26px rgba(119, 176, 222, 0.24) !important;
+  text-decoration: none;
+}
+
+.ps-markdown .about-donation-card {
+  text-align: left !important;
+}
+
+.ps-markdown .about-donation-card .about-github-card-header {
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.ps-markdown .about-donation-card .about-github-card-header p:not(.about-eyebrow) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.ps-markdown .about-donation-button {
+  text-align: center !important;
+}
+
+.ps-markdown .about-section-site .about-click-card {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+}
+
+.ps-markdown .about-section-site .about-click-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(119, 176, 222, 0.72) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 18px 42px rgba(119, 176, 222, 0.18) !important;
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-skill-row {
+    justify-content: flex-start;
+  }
+}
+
+
+/* Active certification card details */
+.ps-markdown .about-cert-tile {
+  min-height: 176px;
+}
+
+.ps-markdown .about-cert-meta,
+.ps-markdown .about-cert-date-row > div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.ps-markdown .about-cert-meta {
+  padding-top: 0.2rem;
+}
+
+.ps-markdown .about-cert-meta span,
+.ps-markdown .about-cert-date-row span {
+  color: rgba(12, 32, 46, 0.58);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.ps-markdown .about-cert-meta small,
+.ps-markdown .about-cert-date-row small {
+  color: #0c202E !important;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.ps-markdown .about-cert-date-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.ps-markdown .about-cert-date-row > div,
+.ps-markdown .about-cert-meta {
+  padding: 0.55rem 0.62rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.64);
+}
+
+.ps-markdown .about-cert-expiry-none small {
+  color: var(--about-accent-strong) !important;
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-cert-date-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Compact certification card style */
+.ps-markdown .about-static-certifications-card .about-expand-summary-content em {
+  color: rgba(12, 32, 46, 0.72) !important;
+}
+
+.ps-markdown .about-cert-tile {
+  min-height: 132px !important;
+  gap: 0.55rem !important;
+}
+
+.ps-markdown .about-cert-meta {
+  padding: 0.48rem 0.58rem !important;
+}
+
+.ps-markdown .about-cert-date-row {
+  display: none !important;
+}
+
+.ps-markdown .about-cert-meta span {
+  color: rgba(12, 32, 46, 0.58) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.055em !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+}
+
+.ps-markdown .about-cert-meta small {
+  color: #0c202E !important;
+  font-size: 0.84rem !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+
+
+/* Compact certification card alignment update */
+.ps-markdown .about-cert-tile {
+  min-height: 108px !important;
+  gap: 0.65rem !important;
+}
+
+.ps-markdown .about-cert-tile strong {
+  color: #77B0DE !important;
+  font-size: 0.96rem !important;
+  line-height: 1.32 !important;
+}
+
+.ps-markdown .about-cert-meta-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  align-items: stretch;
+  margin-top: auto;
+}
+
+.ps-markdown .about-cert-meta-row .about-cert-meta {
+  display: grid !important;
+  align-content: center;
+  gap: 0.18rem;
+  min-width: 0;
+  padding: 0.46rem 0.56rem !important;
+  border-radius: 12px;
+  background: rgba(119, 176, 222, 0.1);
+  border: 1px solid rgba(119, 176, 222, 0.2);
+}
+
+.ps-markdown .about-cert-meta-row .about-cert-meta small {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .ps-markdown .about-cert-meta-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hide the About page profile photo on narrow phone screens only. */
+@media (max-width: 640px) {
+  .ps-markdown .about-justin-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ps-markdown .about-hero-aside {
+    display: none !important;
+  }
+}

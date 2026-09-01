@@ -1,0 +1,685 @@
+---
+title: "Azure Virtual Desktop FSLogix and Native Kerberos authentication"
+date: 2025-12-16
+slug: "azure-virtual-desktop-fslogix-and-native-kerberos-authentication"
+categories:
+  - Azure Virtual Desktop
+tags:
+  - Step by Step guides
+  - Knowledge check
+description: >
+  On this page I will describe how I built an environment with a pooled Azure Virtual Desktop hostpool with FSLogix and using the Entra Kerberos option for authentication. This new authentication option eliminates the unsafe need of storing the storage key in hosts' registry like we did [in my earlier AVD full Entra blog](https://justinverstijnen.nl/pooled-azure-virtual-desktop-with-azure-ad-users/).
+---
+
+In this guide I will dive into how I configured an simple environment where I placed every configuration action in separate steps to keep it simple and clear to follow and also will give some describing information about some concepts and settings.
+
+I also added some optional steps for a better configuration and security than this guide already provides for a better user experience and more security.
+
+---
+
+## The solution described
+
+The day has finally come; we can now build a Azure Virtual Desktop (AVD) hostpool in pooled configuration without having to host an Active Directory, and/or having to host an unsecured storage account by [having to inject the Storage Access Key into the machines' registry](https://justinverstijnen.nl/pooled-azure-virtual-desktop-with-azure-ad-users/). This newer setup enhances performance and security on those points.
+
+In this post we will build a simple Azure Virtual Desktop (AVD) setup with one hostpool, one session host and one storage account. We will use Microsoft Entra for authentication and Microsoft Intune for our session host configuration, maintenance and security.
+
+This looks like this, where I added some session host to get a better understanding of the profile solution.
+
+<!-- draw.io diagram -->
+<div class="drawio-white-background" style="background:#ffffff; padding:24px; border-radius:12px; overflow-x:auto;">
+<div class="mxgraph" style="max-width:100%;border:1px solid transparent;background:#ffffff;" data-mxgraph="{&quot;highlight&quot;:&quot;#0000ff&quot;,&quot;nav&quot;:true,&quot;resize&quot;:true,&quot;dark-mode&quot;:&quot;light&quot;,&quot;toolbar&quot;:&quot;zoom layers tags lightbox&quot;,&quot;xml&quot;:&quot;&lt;mxfile host=\&quot;Electron\&quot; agent=\&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36\&quot; version=\&quot;29.0.3\&quot;&gt;\n  &lt;diagram name=\&quot;Page-1\&quot; id=\&quot;g-f6rE1rsZV5lG1-OueS\&quot;&gt;\n    &lt;mxGraphModel dx=\&quot;983\&quot; dy=\&quot;663\&quot; grid=\&quot;1\&quot; gridSize=\&quot;10\&quot; guides=\&quot;1\&quot; tooltips=\&quot;1\&quot; connect=\&quot;1\&quot; arrows=\&quot;1\&quot; fold=\&quot;1\&quot; page=\&quot;1\&quot; pageScale=\&quot;1\&quot; pageWidth=\&quot;583\&quot; pageHeight=\&quot;413\&quot; background=\&quot;#FFFFFF\&quot; math=\&quot;0\&quot; shadow=\&quot;0\&quot;&gt;\n      &lt;root&gt;\n        &lt;mxCell id=\&quot;0\&quot; /&gt;\n        &lt;mxCell id=\&quot;1\&quot; parent=\&quot;0\&quot; /&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-1\&quot; value=\&quot;VM-3\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Virtual_Machine.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;264\&quot; y=\&quot;120\&quot; width=\&quot;69\&quot; height=\&quot;64\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-3\&quot; value=\&quot;Application Group\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Application_Group.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;387\&quot; y=\&quot;10\&quot; width=\&quot;68\&quot; height=\&quot;68\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-4\&quot; value=\&quot;Workspace\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Workspaces2.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;147\&quot; y=\&quot;10\&quot; width=\&quot;68\&quot; height=\&quot;68\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-5\&quot; value=\&quot;Hostpool\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Host_Pools.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;265\&quot; y=\&quot;10\&quot; width=\&quot;68\&quot; height=\&quot;68\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-6\&quot; value=\&quot;VM-2\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Virtual_Machine.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;187\&quot; y=\&quot;120\&quot; width=\&quot;69\&quot; height=\&quot;64\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-7\&quot; value=\&quot;VM-1\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Virtual_Machine.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;107\&quot; y=\&quot;120\&quot; width=\&quot;69\&quot; height=\&quot;64\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-8\&quot; value=\&quot;VM-4\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Virtual_Machine.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;342\&quot; y=\&quot;120\&quot; width=\&quot;69\&quot; height=\&quot;64\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-9\&quot; value=\&quot;VM-5\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Virtual_Machine.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;421\&quot; y=\&quot;120\&quot; width=\&quot;69\&quot; height=\&quot;64\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-10\&quot; value=\&quot;&amp;lt;font style=&amp;quot;&amp;quot;&amp;gt;FSLogix&amp;lt;/font&amp;gt;\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/storage/Storage_Accounts.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;266.5\&quot; y=\&quot;280\&quot; width=\&quot;65\&quot; height=\&quot;52\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-11\&quot; value=\&quot;Entra ID\&quot; style=\&quot;image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/other/Entra_Identity.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;6\&quot; y=\&quot;121.78\&quot; width=\&quot;68\&quot; height=\&quot;60.440000000000005\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-13\&quot; value=\&quot;Intune\&quot; style=\&quot;image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Intune_App_Protection.svg;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;523\&quot; y=\&quot;133\&quot; width=\&quot;60\&quot; height=\&quot;48\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-24\&quot; value=\&quot;\&quot; style=\&quot;html=1;fillColor=#8EAFDA;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.bus;gradientColor=none;gradientDirection=north;fontColor=#FFFFFF;perimeter=backbonePerimeter;backboneSize=20;labelBackgroundColor=#4C6077;\&quot; vertex=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry x=\&quot;110\&quot; y=\&quot;240\&quot; width=\&quot;380\&quot; height=\&quot;20\&quot; as=\&quot;geometry\&quot; /&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-28\&quot; value=\&quot;\&quot; style=\&quot;strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;flowAnimation=1;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;455\&quot; y=\&quot;200\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;455\&quot; y=\&quot;239.68965517241372\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot; /&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-33\&quot; value=\&quot;\&quot; style=\&quot;strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;flowAnimation=1;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;376.16\&quot; y=\&quot;200.31\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;376.16\&quot; y=\&quot;239.99965517241372\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot; /&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-34\&quot; value=\&quot;\&quot; style=\&quot;strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;flowAnimation=1;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;298.66\&quot; y=\&quot;200.31\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;298.66\&quot; y=\&quot;239.99965517241372\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot; /&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-35\&quot; value=\&quot;\&quot; style=\&quot;strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;flowAnimation=1;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;221.16\&quot; y=\&quot;200.31\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;221.16\&quot; y=\&quot;239.99965517241372\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot; /&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-36\&quot; value=\&quot;\&quot; style=\&quot;strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;flowAnimation=1;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;141.16\&quot; y=\&quot;200.31\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;141.16\&quot; y=\&quot;239.99965517241372\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot; /&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-37\&quot; value=\&quot;\&quot; style=\&quot;strokeColor=#6881B3;edgeStyle=none;rounded=0;endArrow=none;html=1;strokeWidth=2;flowAnimation=1;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot;&gt;\n          &lt;mxGeometry relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;299.65999999999997\&quot; y=\&quot;260\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;300\&quot; y=\&quot;280\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot; /&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-38\&quot; value=\&quot;\&quot; style=\&quot;endArrow=none;dashed=1;html=1;rounded=0;exitX=-0.008;exitY=0.612;exitDx=0;exitDy=0;exitPerimeter=0;flowAnimation=1;strokeColor=#8EAFDA;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot; source=\&quot;ci2uppJsAZdgXneHyPcw-10\&quot;&gt;\n          &lt;mxGeometry width=\&quot;50\&quot; height=\&quot;50\&quot; relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;36\&quot; y=\&quot;330\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;40\&quot; y=\&quot;200\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot;&gt;\n              &lt;mxPoint x=\&quot;40\&quot; y=\&quot;312\&quot; /&gt;\n            &lt;/Array&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;ci2uppJsAZdgXneHyPcw-39\&quot; value=\&quot;\&quot; style=\&quot;endArrow=none;dashed=1;html=1;rounded=0;entryX=-0.029;entryY=0.506;entryDx=0;entryDy=0;entryPerimeter=0;flowAnimation=1;strokeColor=#8EAFDA;labelBackgroundColor=#4C6077;fontColor=#FFFFFF;\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot; target=\&quot;ci2uppJsAZdgXneHyPcw-10\&quot;&gt;\n          &lt;mxGeometry width=\&quot;50\&quot; height=\&quot;50\&quot; relative=\&quot;1\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;47\&quot; y=\&quot;200\&quot; as=\&quot;sourcePoint\&quot; /&gt;\n            &lt;mxPoint x=\&quot;410\&quot; y=\&quot;100\&quot; as=\&quot;targetPoint\&quot; /&gt;\n            &lt;Array as=\&quot;points\&quot;&gt;\n              &lt;mxPoint x=\&quot;47\&quot; y=\&quot;306\&quot; /&gt;\n            &lt;/Array&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n      &lt;/root&gt;\n    &lt;/mxGraphModel&gt;\n  &lt;/diagram&gt;\n&lt;/mxfile&gt;\n&quot;}"></div>
+</div>
+<script type="text/javascript" src="https://viewer.diagrams.net/js/viewer-static.min.js"></script>
+
+FSLogix is a piece of software that can attach a virtual disk from a network location and attach it to Windows at logon. This ensures users can work on any machine without losing their settings, applications and data.
+
+In the past, FSLogix always needed an Active Directory or Entra Domain Services because of SMB and Kerberos authentication. We now finally got a solution where this is a thing of the past and go full cloud only.
+
+For this to work we also get an Service Principal for your storage account, building a bridge between identity and storage account for Kerberos authentication for the SMB protocol.
+
+---
+
+## 1: Create Security Groups and configure roles
+
+Before we can configure the service, we will first start with creating a security group to give users permissions to the FSLogix storage. Every user who will use FSLogix will need at least Read/write (Contributor) permissions.
+
+Go to the Entra Admin center (<https://entra.microsoft.com>) and go to "Groups".
+
+### Create a user group
+
+Create a new security group here:
+
+[![jv-media-5828-7eb20ad7631f.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-7eb20ad7631f.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-7eb20ad7631f.png)
+
+You can use a assigned group if you want to manage access, or you can use a dynamic group to automate this process. Then create the group, which in my case will be used for storage permissions and hostpool access.
+
+### Create a device group
+
+If having a larger Intune environment, it is recommended to create a Azure Virtual Desktop device/session hosts group. This way you can apply computer settings to the hosts group in Intune.
+
+You can create a group with your desired name and this can be an assigned or dynamic group. An examples of dynamic group rules can be this:
+
+[![jv-media-5828-24cf8477db9d.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-24cf8477db9d.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-24cf8477db9d.png)
+{{< card code=true header="**JSON**" lang="json" >}}
+(device.displayName -startsWith "vm-jv") and (device.deviceModel -eq "Virtual Machine") and (device.managementType -eq "MDM")
+{{< /card >}}
+
+For AVD hosts, I really like dynamic groups, as you deploy more virtual machines, policies, scripts and such are all applied automatically.
+
+### Assign Virtual Machine login roles to users
+
+After the group is created, we need to assign a role to the group. This role is:
+
+- **Virtual Machine User Login** on all session hosts -> Resource group
+  - For default, non administrative users
+- **Virtual Machine Administrator Login** on all session hosts -> Resource group
+  - For administrative users
+
+We will use the role "Virtual Machine User Login" in this case for normal end users. Go to the resource group where your AVD hosts are and go to "Access control (IAM)".
+
+[![jv-media-5828-d2d3d01f7dd6.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d2d3d01f7dd6.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d2d3d01f7dd6.png)
+
+Click on "+ Add" and then "Add role assignment".
+
+[![jv-media-5828-49a36220a6a1.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-49a36220a6a1.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-49a36220a6a1.png)
+
+Select the role "Virtual Machine User Login" and click on "Next". On the Members page, click on "+ Select members" and select the group with users you just created.
+
+[![jv-media-5828-f047835814cc.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-f047835814cc.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-f047835814cc.png)
+
+The role assignment is required because users will be loggin into a virtual machine. Azure requires the users to have the RBAC role for security.
+
+You can do this on Resource, Resource Group and Subscription level, but mostly we will be placing similar hosts in the same resource group. My advice in such situation would be to use the resource group for the permissions.
+
+{{< ads >}}
+
+---
+
+## 2: Create Azure Virtual Desktop hostpool
+
+Now we have to create a hostpool for Azure Virtual Desktop. This is a group of session hosts which will deliver a desktop to the end user.
+
+In Microsoft Azure, search for "Azure Virtual Desktop".
+
+[![jv-media-5828-c07dd058915c.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c07dd058915c.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c07dd058915c.png)
+
+Then click on "Create a hostpool".
+
+[![jv-media-5828-d82e27d834f6.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d82e27d834f6.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d82e27d834f6.png)
+
+Fill in the details of your hostpool like a name, the region you want to host it and the hostpool type. Assuming you are here for FSLogix, select the "Pooled" type.
+
+[![jv-media-5828-d3b2e6bb9b32.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d3b2e6bb9b32.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d3b2e6bb9b32.png)
+
+Then click "Next" to advance to the next configuration page. Here we must select if we want to deploy a virtual machine. In my case, I will do this.
+
+[![jv-media-5828-3f9788c15084.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-3f9788c15084.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-3f9788c15084.png)
+
+[![jv-media-5828-80170fef0703.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-80170fef0703.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-80170fef0703.png)
+
+And at the end select the option "Microsoft Entra ID".
+
+[![jv-media-5828-a0f3cf2d767f.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-a0f3cf2d767f.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-a0f3cf2d767f.png)
+
+Create your local administrator account for initial or emergency access and then finish creating the hostpool.
+
+---
+
+## 3: Create Storage Account for FSLogix
+
+After having the hostpool ready and the machine deploying, we have to create a storage account and fileshare for storing the FSLogix profiles. In the Azure Portal, go to Azure Files and create a new storage account:
+
+[![jv-media-5828-fc7826be59c7.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-fc7826be59c7.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-fc7826be59c7.png)
+
+Then fill in the details of your storage account:
+
+[![jv-media-5828-01c41011088b.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-01c41011088b.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-01c41011088b.png)
+
+I chose the Azure Files type as we don't need the other storages. We can skip to the end to create the storage account.
+
+### Storage account security
+
+After creating the storage account, we must do some configurations. Go to the storage account and then to "Configuration".
+
+[![jv-media-5828-df6035ae7c92.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-df6035ae7c92.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-df6035ae7c92.png)
+
+Set these two options to this setting:
+
+- Allow storage account key access: **Disabled**
+- Default to Microsoft Entra authorization in the Azure Portal: **Enabled**
+
+### Storage account firewall settings
+
+Navigate in the Storage account to the blade "Networking". We will limit the networks and IP addresses that can access the storage account which is by default the whole internet.
+
+[![jv-media-5828-f8429a72577e.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-f8429a72577e.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-f8429a72577e.png)
+
+Click on "Enabled from all networks".
+
+Here select the "Enable from selected networks" option, and select your network containing your Azure Virtual Desktop hosts.
+
+[![jv-media-5828-4edff7cd804b.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4edff7cd804b.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4edff7cd804b.png)
+
+Click "Enable" to let Azure do some under the hood work (Creates a Service Endpoint for the AVD network to reach the Storage account).
+
+Then click "Save" to limit access to your Storage Account only from your AVD hosts network.
+
+Configuring this shifts the option to "Enabled from selected networks".
+
+[![jv-media-5828-d675ed98c80e.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d675ed98c80e.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-d675ed98c80e.png)
+
+---
+
+## 4: Create the File Share and Kerberos
+
+After creating, navigate to the storage account. We have to create a fileshare to place the FSLogix profiles.
+
+Navigate to the storage account and create on "+ File share".
+
+[![jv-media-5828-04e32a29172d.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-04e32a29172d.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-04e32a29172d.png)
+
+Give the file share a name and decide to use back-up or not. For production environments, this is highly recommended.
+
+[![jv-media-5828-4bf429ce92b0.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4bf429ce92b0.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4bf429ce92b0.png)
+
+Finish the wizard to create the file share.
+
+Now we have to configure the Microsoft Entra Authentication to authenticate against the file share. Go to the storage account, then "file shares" and then click on "Identity-based access".
+
+[![jv-media-5828-e63e1af047ee.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-e63e1af047ee.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-e63e1af047ee.png)
+
+Select the option "Microsoft Entra Kerberos".
+
+[![jv-media-5828-0365726c05c6.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-0365726c05c6.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-0365726c05c6.png)
+
+Enable Microsoft Entra Kerberos on this window.
+
+[![jv-media-5828-70319ee48096.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-70319ee48096.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-70319ee48096.png)
+
+After enabling this option, save and wait for a few minutes.
+
+Enabling this option will create a new App registration in your Entra ID.
+
+[![jv-media-5828-04402341fb1c.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-04402341fb1c.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-04402341fb1c.png)
+
+---
+
+## 5: Configure the App registration
+
+Now that we have enabled the Entra Kerberos option, an App registration will be created. This will be used as Service Principal for gaining access to the file share. This will be a layer between the user logging into Azure Virtual Desktop and the file share.
+
+Go to the Microsoft Entra portal: <https://entra.microsoft.com>
+
+Head to "App registrations" and open it. We need to give it some permissions as administrator.
+
+[![jv-media-5828-817ad6a66701.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-817ad6a66701.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-817ad6a66701.png)
+
+Then head to "API permissions".
+
+[![jv-media-5828-c576907a3841.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c576907a3841.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c576907a3841.png)
+
+The required permissions are already filled in by Azure, but we need to grant admin consent as administrator. This means we tell Azure that it may read our users and can use it to sign in to the File share.
+
+[![jv-media-5828-a2417bb18ca6.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-a2417bb18ca6.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-a2417bb18ca6.png)
+
+Click on "Yes" to accept the permissions.
+
+[![jv-media-5828-049f60d1b5fb.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-049f60d1b5fb.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-049f60d1b5fb.png)
+
+Without granting access, the solution will not work. Even when it stated that admin consent is not required.
+
+You also need to exclude the application from your Conditional Access policies. For every policy, add it as excluded resource:
+
+[![jv-media-5828-5bcbd6e444fe.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-5bcbd6e444fe.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-5bcbd6e444fe.png)
+
+In my case, the name did not pop-up so I used the Application ID instead.
+
+Add this to the excluded resource of every Conditional Access policy in your tenant to make sure this will not interrupt.
+
+{{< ads >}}
+
+---
+
+## 6: Configure storage permissions
+
+To give users and this solution access to the storage account, we need to configure the permissions on our storage account. We will give the created security group SMB Contributor permissions to read and write the profile disks.
+
+### User permissions
+
+Go to the Storage account, then to the file share and open the file share. For narrow security, we will give only permissions on the file share we just created some steps earlier.
+
+[![jv-media-5828-01a76c3a3448.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-01a76c3a3448.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-01a76c3a3448.png)
+
+Open the file share and open the "Access Control (IAM)" blade and add a new role assignment.
+
+[![jv-media-5828-ab8c3bbf497c.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-ab8c3bbf497c.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-ab8c3bbf497c.png)
+
+Now search for the role named:
+
+- *Storage File Data SMB Share Contributor*
+
+This role gives read/write access to the file share, which is the SMB protocol. We will assign this role to our created security group.
+
+[![jv-media-5828-b287e214a2d2.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-b287e214a2d2.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-b287e214a2d2.png)
+
+Click "Next" to get to the "Members" tab.
+
+[![jv-media-5828-7cb9065194c7.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-7cb9065194c7.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-7cb9065194c7.png)
+
+Search for your group and add it to the role. Then finish the wizard.
+
+### Administrator permissions
+
+To view the profiles as administrator, we must give our accounts another role, this is to use Microsoft Entra authentication in the portal as we disabled the storage account key for security reasons.
+
+Again, add a new role assignment:
+
+[![jv-media-5828-f5802f7dcc44.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-f5802f7dcc44.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-f5802f7dcc44.png)
+
+Search for the role: **Storage File Data Privileged Contributor**
+
+Assign this to your administrator accounts:
+
+[![jv-media-5828-ea30ccfa019d.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-ea30ccfa019d.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-ea30ccfa019d.png)
+
+Finish the wizard to make the assignment active.
+
+### Default share-level permissions
+
+We must also do one final configuration to the storage account permissions, and that is to set default share-level permissions. Is is a requirement of this Microsoft Entra Kerberos thing.
+
+{{% alert color="info" %}}
+Source: <https://learn.microsoft.com/en-us/azure/storage/files/storage-files-identity-assign-share-level-permissions?WT.mc_id=Portal-Microsoft_Azure_FileStorage&tabs=azure-portal#choose-how-to-assign-share-level-permissions>
+{{% /alert %}}
+
+Go back to the storage account, click on FIle shares and then click on "Default share-level permissions"
+
+[![jv-media-5828-1ce5d630cbb8.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-1ce5d630cbb8.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-1ce5d630cbb8.png)
+
+Set the share-level permissions to "Enable permissions for all authenticated users and groups". Also select the "**Storage File Data SMB Share Contributor**" role, which includes read/write permissions.
+
+[![jv-media-5828-2a51a2c7cccd.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-2a51a2c7cccd.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-2a51a2c7cccd.png)
+
+Save the configuration, and we will now dive into the session host configuration part.
+
+---
+
+## 7: Intune configuration for AVD hosts
+
+Now we need to configure the following setting for our AVD hosts in Intune:
+
+- **Kerberos Cloud Ticket Retrieval:** This setting allows cloud devices to obtain Kerberos tickets from Microsoft Entra ID by using cloud credentials to use against SMB file shares
+
+Go to the Intune Admin center (<https://intune.microsoft.com>). We need to create or change an existing configuration policy.
+
+[![jv-media-5828-295d128cb93d.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-295d128cb93d.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-295d128cb93d.png)
+
+Search for "Kerberos" and search for the "Cloud Kerberos Ticket Retrieval" option and enable it.
+
+[![jv-media-5828-7b638c62b36f.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-7b638c62b36f.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-7b638c62b36f.png)
+
+Then assign the configuration policy to your AVD hosts to apply this configuration.
+
+---
+
+## 8: FSLogix configuration
+
+We can now configure FSLogix in Intune. I do this by using configuration profiles from settings catalogs. These are easy to configure and can be imported and exported.
+
+To configure this create a new configuration template from scratch for Windows 10 and higher and use the "Settings catalog".
+
+[![jv-media-5828-8936ff75b5c7.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-8936ff75b5c7.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-8936ff75b5c7.png)
+
+Give the profile a name and description and advance.
+
+Click on "Add settings" and navigate to the FSLogix policy settings.
+
+[![jv-media-5828-10b8dbc58b98.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-10b8dbc58b98.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-10b8dbc58b98.png)
+
+### Profile Container settings
+
+Under FSLogix -> Profile Containers, select the following settings, enable them and configure them:
+
+|  |  |
+| --- | --- |
+| **etting name** | **Value** |
+| Access Network as Computer Object | **Disabled** |
+| Delete Local Profile When VHD Should Apply | Enabled |
+| Enabled | Enabled |
+| Is Dynamic (VHD) | Enabled |
+| Keep Local Directory (after logoff) | Enabled |
+| Prevent Login With Failure | Enabled |
+| Roam Identity | Enabled |
+| Roam Search | Disabled |
+| VHD Locations | Your storage account and share in UNC. Mine is here:      \\sajvazurevirtualdesktop.file.core.windows.net\fslogix |
+
+[![jv-media-5828-b293467c80a1.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-b293467c80a1.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-b293467c80a1.png)
+{{% alert color="warning" %}}
+Make sure the option "*Access Network as Computer Object*" is **Disabled**, as this is a requirement for user authentication. Otherwise the solution will not work and sign in will result in a FSLogix "Error code: 0x000000035, Message: Impossibile to find network path" error.
+{{% /alert %}}
+
+### Container naming settings
+
+Under FSLogix -> Profile Containers -> Container and Directory Naming, select the following settings, enable them and configure them:
+
+|  |  |
+| --- | --- |
+| **Setting name** | **Value** |
+| No Profile Containing Folder | Enable |
+| VHD Name Match | %username% |
+| VHD Name Pattern | %username% |
+| Volume Type (VHD or VHDX) | VHDX |
+
+You can change this configuration to fit your needs, this is purely how I configured FSLogix to keep the configuration as simple and effective as possible.
+
+Save the policy and assign this to your AVD hosts.
+
+---
+
+## 9: Preparing the hostpool
+
+We need to do some small final configurations, gaining access to the virtual desktops by giving the permissions.
+
+Go to the hostpool and then to Application Groups.
+
+[![jv-media-5828-1cfdbd283cc8.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-1cfdbd283cc8.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-1cfdbd283cc8.png)
+
+Then open the application group that contains the desktop. Then click on "Assignments".
+
+[![jv-media-5828-776ecbcf2601.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-776ecbcf2601.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-776ecbcf2601.png)
+
+Select the group to give desktop access to the users. Then save the assignment.
+
+After assigning the group we would have to do one last configuration, enabling Single Sign On on the hostpool. Go to your hostpool and open the RDP Properties
+
+[![jv-media-5828-9e61108354a9.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-9e61108354a9.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-9e61108354a9.png)
+{{% alert color="info" %}}
+For a comprehensive guide about Azure Virtual Desktop and RDP Properties, visit: <https://justinverstijnen.nl/azure-virtual-desktop-rdp-properties/>
+{{% /alert %}}
+
+On the "Connection Information" tab, select the "Microsoft Entra single sign-on" option and set this to provide single sign-on. Then save the configuration.
+
+At this point, my advanced RSP Properties configuration is:
+
+{{< card code=true header="**POWERSHELL**" lang="powershell" >}}
+drivestoredirect:s:;usbdevicestoredirect:s:;redirectclipboard:i:0;redirectprinters:i:0;audiomode:i:0;videoplaybackmode:i:1;devicestoredirect:s:*;redirectcomports:i:1;redirectsmartcards:i:1;enablecredsspsupport:i:1;redirectwebauthn:i:1;use multimon:i:1;enablerdsaadauth:i:1
+{{< /card >}}
+
+---
+
+## 10: Connecting to the hostpool
+
+Now we have everything ready under the hood, we can finally connect to our hostpool. Download the Windows App [or use the webclient](https://windows.cloud.microsoft) and sign into your account:
+
+[![jv-media-5828-c020f277fe61.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c020f277fe61.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c020f277fe61.png)
+
+Also click on "Yes" on the Single sign-on prompt to allow the remote desktop connection.
+
+[![jv-media-5828-926048566019.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-926048566019.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-926048566019.png)
+
+Here we are on our freshly created desktop. After connecting the FSLogix profile will be automatically created on the storage account.
+
+[![jv-media-5828-a8f78c99eeec.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-a8f78c99eeec.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-a8f78c99eeec.png)
+
+And this with only these resources:
+
+[![jv-media-5828-dd509eb8015b.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-dd509eb8015b.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-dd509eb8015b.png)
+
+---
+
+## 11: Shaping your AVD Workspace (optional)
+
+In the Windows app, you get a workspace to connect to your desktop. By default, these are filled in automatically but it is possible to change the names for a better user experience.
+
+[![jv-media-5828-bd2c1be95225.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-bd2c1be95225.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-bd2c1be95225.png)
+
+The red block can be changed in the Workspace -> Friendly name and the green block can be changed in the Application Group -> Application -> Session Desktop.
+
+For the red block, go to your Workspace, then to Properties and change and save the friendly name:
+
+[![jv-media-5828-c5aa4cee161f.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c5aa4cee161f.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c5aa4cee161f.png)
+
+For the green block, go to your application groups, and then the Desktop Application Group (DAG) and select the SessionDesktop application. You can change and save the name here.
+
+[![jv-media-5828-ee0a6fd91314.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-ee0a6fd91314.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-ee0a6fd91314.png)
+
+After refreshing the workspace, this looks a lot better to the end user:
+
+[![jv-media-5828-4c7bcd7e3770.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4c7bcd7e3770.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4c7bcd7e3770.png)
+
+Building great solutions is having attention for the smallest details ;)
+
+---
+
+## 12: Setting maximum SMB encryption (optional)
+
+This step is optional, but recommended for higher security.
+
+In another guide, I dived into the SMB encryption settings to use the Maximum security preset of Azure Files. You can find that guide here:
+
+[Guide for maximum SMB encryption](https://justinverstijnen.nl/fslogix-and-maximum-azure-files-security/)
+
+Using the Maximum security preset for Azure Files ensures only the best encryption and safest protocols are being used between Session host and File share. For example, this only allows Kerberos and disables the older, unsafe NTLM authentication protocol.
+
+---
+
+## 13: Troubleshooting (optional)
+
+It is possible that this setup doesn't work at your first try. I have added some steps to troubleshoot the solution and come to the cause of the error.
+
+### FSLogix profile errors
+
+If you get an error like below picture, the profile failed to create or mount which can have various different causes based on the error.
+
+[![jv-media-5828-4b91e6ba85c8.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4b91e6ba85c8.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-4b91e6ba85c8.png)
+
+In this case, the error is "Access is denied". This is true because I did this on purpose. Check the configuration [of step 6](#6-configure-storage-permissions).
+
+When presented this type of errors, you are able to get to CMD by pressing CTRL+SHIFT+ESC and run a new task there, which is CMD.
+
+[![jv-media-5828-580b45fb9c37.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-580b45fb9c37.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-580b45fb9c37.png)
+
+To check if you can navigate to the share, you can open explorer.exe here and navigate manually to the share to see if its working. If you get any authentication prompts or errors, this means that this is the reason FSLogix doesn't work either.
+
+[![jv-media-5828-c76cb7e8c23e.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c76cb7e8c23e.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c76cb7e8c23e.png)
+
+[![jv-media-5828-c26a62c0d0a2.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c26a62c0d0a2.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-c26a62c0d0a2.png)
+
+If not getting any FSLogix error and no profile is created in the storage account after logging in, check your FSLogix configuration [from step 8](#8-fslogix-configuration) and the assignments in Intune.
+
+### Kerberos errors
+
+It is also possible that you get an error that the network path cannot be found. This states that the kerberos connection is not working. You can use this command to check the configuration:
+
+{{< card code=true header="**POWERSHELL**" lang="powershell" >}}
+dsregcmd /status
+{{< /card >}}
+
+This returns an overview with the desktop configuration with Entra and Intune.
+
+[![jv-media-5828-e17d9e2ddbef.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-e17d9e2ddbef.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-e17d9e2ddbef.png)
+
+This overview shows that the Azure AD primary refresh token is active and that the Cloud TGT option is available. This must both be yes for the authentication to work.
+
+[![jv-media-5828-fbfa9f3341f2.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-fbfa9f3341f2.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-fbfa9f3341f2.png)
+
+And to check if the Kerberos tickets is given, you can run this command:
+
+{{< card code=true header="**POWERSHELL**" lang="powershell" >}}
+klist get cifs/sajvazurevirtualdesktop.file.core.windows.net
+{{< /card >}}
+
+Change the name to your storage account name.
+
+[![jv-media-5828-e88235b11443.png](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-e88235b11443.png)](https://sajvwebsiteblobstorage.blob.core.windows.net/blog/azure-virtual-desktop-fslogix-and-native-kerberos-authentication-5828/jv-media-5828-e88235b11443.png)
+
+In my case, I get two tickets who are given to my user. If this shows nothing, there is anything wrong with your Kerberos configuration.
+
+---
+
+## Knowledge check
+
+{{< quiz >}}
+{
+  "intro": "Answer these question(s) to test your understanding of this post. Your answers are not saved or sent anywhere; this is simply a personal knowledge check. If you refresh the page, your answers will be cleared.",
+  "questions": [
+    {
+      "question": "What value does Entra Kerberos add to Azure Virtual Desktop with FSLogix deployments?",
+      "reference": "See the section: The solution described",
+      "referenceUrl": "#the-solution-described",
+      "answers": [
+        {
+          "text": "The option to link Azure Virtual Desktop Deployments to your Active Directory",
+          "correct": false,
+          "message": "Incorrect, this is what we had. Not what we get with Entra Kerberos."
+        },
+        {
+          "text": "The elimination of the Active Directory requirement when using FSLogix",
+          "correct": true,
+          "message": "Correct, which saves us maintenance, costs and minimizes attack surface."
+        },
+        {
+          "text": "Faster deployments using Infrastructure as Code",
+          "correct": false,
+          "message": "Incorrect. This is nonsense, and what we could achieve with Terraform/Bicep or ARM."
+        },
+        {
+          "text": "Creating a cloud trust with Active Directory",
+          "correct": false,
+          "message": "Incorrect. This exists, but then for AD/Windows Hello and Intune joined devices."
+        }
+      ]
+    },
+    {
+      "question": "Which least-privileged Azure RBAC role do we need to assign to the end users group to be able to connect to Azure Virtual Desktop hosts?",
+      "reference": "See the section: Assign Virtual Machine login roles to users",
+      "referenceUrl": "#assign-virtual-machine-login-roles-to-users",
+      "answers": [
+        {
+          "text": "Virtual Machine Administrator Login",
+          "correct": false,
+          "message": "Incorrect. This gives end users way too much privileges."
+        },
+        {
+          "text": "Administrator",
+          "correct": false,
+          "message": "Incorrect. This gives end users way too much privileges."
+        },
+        {
+          "text": "Virtual Machine User Login",
+          "correct": true,
+          "message": "Correct! This gives only access to the hosts with RDP and nothing more."
+        },
+        {
+          "text": "Reader",
+          "correct": false,
+          "message": "Incorrect. This gives too much privileges and doesn't even gain access to the Virtual Machine by RDP itself."
+        }
+      ]
+    },
+    {
+      "question": "What action must be done to the Storage Account Service Principal?",
+      "reference": "See the section: 5: Configure the App registration",
+      "referenceUrl": "#5-configure-the-app-registration",
+      "answers": [
+        {
+          "text": "Granting admin consent on behalf of the organization",
+          "correct": true,
+          "message": "Correct! This is the right answer."
+        },
+        {
+          "text": "Assigning the right Graph API permissions",
+          "correct": false,
+          "message": "Almost correct, the required API permissions are already assigned."
+        },
+        {
+          "text": "Assigning the Service Principal to your AVD Users group",
+          "correct": false,
+          "message": "Incorrect, this is nonsense and should not be done."
+        }
+      ]
+    },
+    {
+      "question": "What must be configured using Microsoft Intune or registry/group policy to make Entra Kerberos work for Intune-joined session hosts?",
+      "reference": "See the section: 7: Intune configuration for AVD hosts",
+      "referenceUrl": "#7-intune-configuration-for-avd-hosts",
+      "answers": [
+        {
+          "text": "Kerberos Cloud Ticket Retrieval to obtain Kerberos tickets",
+          "correct": true,
+          "message": "Correct! This is the right answer."
+        },
+        {
+          "text": "Active Directory integration",
+          "correct": false,
+          "message": "Incorrect. Entra Kerberos is all about eliminating Active Directory."
+        },
+        {
+          "text": "A custom PowerShell script to create a cloud trust",
+          "correct": false,
+          "message": "Incorrect. Entra Kerberos is all about eliminating Active Directory."
+        },
+        {
+          "text": "FSLogix containers pointing to your Active Directory-joined SMB server",
+          "correct": false,
+          "message": "Incorrect. Entra Kerberos is all about eliminating Active Directory."
+        }
+      ]
+    },
+    {
+      "question": "What must be configured on the Azure Virtual Desktop Hostpool for making Entra Kerberos work?",
+      "reference": "See the section: 9: Preparing the hostpool",
+      "referenceUrl": "#9-preparing-the-hostpool",
+      "answers": [
+        {
+          "text": "Drive redirection",
+          "correct": false,
+          "message": "Incorrect. Review the referenced section and try again."
+        },
+        {
+          "text": "Credential Security Support Provider",
+          "correct": false,
+          "message": "Incorrect. Review the referenced section and try again."
+        },
+        {
+          "text": "redirectwebauthn:i:1",
+          "correct": false,
+          "message": "Incorrect RDP property."
+        },
+        {
+          "text": "Microsoft Entra Single sign-on",
+          "correct": true,
+          "message": "Correct! This is the right answer."
+        },
+        {
+          "text": "Validation environment",
+          "correct": false,
+          "message": "Incorrect. Review the referenced section and try again."
+        }
+      ]
+    }
+  ]
+}
+{{< /quiz >}}
+
+---
+
+## Summary
+
+This new (in preview at the time of writing) Microsoft Entra Kerberos option is a great way to finally host an Azure VIrtual Desktop environment completely cloud only and without the need for extra servers for a traditional Active Directory. Hosting servers is a time consuming and less secure manner.
+
+Going completely cloud only enhances the manageability of the environement keeps things simple to manage. It also makes your environment more secure which are things we like.
+
+Thank you for reading this page and I hope it was helpful.
+
+### Sources
+
+These sources helped me by writing and research for this post;
+
+1. <https://learn.microsoft.com/en-us/entra/identity/authentication/kerberos#how-microsoft-entra-kerberos-works>
+2. <https://learn.microsoft.com/en-us/microsoft-365/enterprise/manage-microsoft-365-accounts?view=o365-worldwide#cloud-only>
+3. <https://learn.microsoft.com/en-us/azure/storage/files/storage-files-identity-assign-share-level-permissions?WT.mc_id=Portal-Microsoft_Azure_FileStorage&tabs=azure-portal#choose-how-to-assign-share-level-permissions>
+
+{{< ads >}}
+
+{{< article-footer >}}

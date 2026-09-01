@@ -1,0 +1,412 @@
+name: Deploy Hugo site to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 3 * * *"
+      timezone: "Europe/Amsterdam"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-${{ github.workflow }}"
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  EXCLUDED_CONTENT_DIR: content/en/blog/archive-hidden
+  HUGO_IGNOREFILES: '[/\\]content[/\\]en[/\\]blog[/\\]archive-hidden[/\\].*'
+  HUGO_VERSION: "0.164.0"
+  NODE_VERSION: "24"
+  HUGO_ENVIRONMENT: production
+  HUGO_ENV: production
+  HUGO_CACHEDIR: /tmp/hugo_cache
+
+jobs:
+  build:
+    name: Build Hugo site
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Setup Node.js for PostCSS
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Hugo extended
+        run: |
+          set -euo pipefail
+
+          curl -L -o hugo.tar.gz "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          mkdir -p "${HOME}/.local/hugo"
+          tar -xzf hugo.tar.gz -C "${HOME}/.local/hugo"
+          echo "${HOME}/.local/hugo" >> "${GITHUB_PATH}"
+
+      - name: Prepare Docsy modules and Node dependencies
+        run: |
+          set -euo pipefail
+
+          hugo mod tidy
+          hugo mod npm pack
+
+          npm pkg set 'name="@jvtechnicalblog/hugoautogen"' private=true --json --prefix packages/hugoautogen
+          npm install --ignore-scripts
+
+      - name: Show versions
+        run: |
+          hugo version
+          node --version
+          npm --version
+          node_modules/.bin/sass --version
+          hugo mod graph
+
+      - name: Generate planned posts page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from datetime import datetime, timezone
+          import os
+          import re
+          import html
+
+          BLOG_DIR = Path("content/en/blog")
+          OUTPUT_FILE = Path("content/en/planned-posts.md")
+          TODAY = datetime.now(timezone.utc).date()
+
+          EXCLUDED_CONTENT_DIR = Path(
+              os.environ.get("EXCLUDED_CONTENT_DIR", "content/en/blog/archive-hidden")
+          )
+
+
+          def is_excluded_path(path):
+              try:
+                  return path.is_relative_to(EXCLUDED_CONTENT_DIR)
+              except AttributeError:
+                  try:
+                      path.relative_to(EXCLUDED_CONTENT_DIR)
+                      return True
+                  except ValueError:
+                      return False
+
+
+          def extract_front_matter(text):
+              match = re.match(r"^---\s*\n(.*?)\n---\s*", text, re.DOTALL)
+              return match.group(1) if match else ""
+
+
+          def parse_front_matter(block):
+              data = {}
+              lines = block.splitlines()
+              i = 0
+
+              while i < len(lines):
+                  raw = lines[i]
+                  line = raw.rstrip()
+
+                  if not line.strip() or line.lstrip().startswith("#"):
+                      i += 1
+                      continue
+
+                  list_item_match = re.match(r"^\s*-\s+(.*)$", line)
+                  if list_item_match:
+                      i += 1
+                      continue
+
+                  key_match = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line.strip())
+                  if not key_match:
+                      i += 1
+                      continue
+
+                  key, value = key_match.groups()
+                  value = value.strip()
+
+                  if value in (">", "|"):
+                      collected = []
+                      i += 1
+                      while i < len(lines):
+                          next_line = lines[i]
+                          if next_line.startswith(" ") or next_line.startswith("\t"):
+                              collected.append(next_line.strip())
+                              i += 1
+                          else:
+                              break
+                      data[key] = " ".join(collected).strip()
+                      continue
+
+                  if value == "":
+                      collected = []
+                      j = i + 1
+                      while j < len(lines):
+                          list_match = re.match(r"^\s*-\s+(.*)$", lines[j])
+                          if list_match:
+                              collected.append(list_match.group(1).strip().strip('"').strip("'"))
+                              j += 1
+                          else:
+                              break
+                      data[key] = collected
+                      i = j
+                      continue
+
+                  data[key] = value.strip().strip('"').strip("'")
+                  i += 1
+
+              return data
+
+
+          def parse_date(value):
+              if not value:
+                  return None
+
+              cleaned = value.strip().strip('"').strip("'").replace("Z", "+00:00")
+
+              try:
+                  return datetime.fromisoformat(cleaned).date()
+              except ValueError:
+                  pass
+
+              try:
+                  return datetime.fromisoformat(cleaned[:10]).date()
+              except ValueError:
+                  return None
+
+
+          def ensure_list(value):
+              if not value:
+                  return []
+              if isinstance(value, list):
+                  return value
+              return [str(value)]
+
+
+          def build_countdown_label(days):
+              if days == 0:
+                  return "Today"
+              if days == 1:
+                  return "1 day to go"
+              return f"{days} days to go"
+
+
+          def build_summary(posts):
+              if not posts:
+                  return """
+          <div class="planned-posts-empty">
+            <h2>No planned posts found</h2>
+            <p>There are currently no posts scheduled with a future publication date.</p>
+          </div>
+          """
+
+              next_post_days = posts[0]["days_until"]
+              next_post_date = posts[0]["date_display"]
+
+              return f"""
+          <div class="planned-posts-summary">
+            <div class="planned-posts-summary__card">
+              <div class="planned-posts-summary__number">{len(posts)}</div>
+              <div class="planned-posts-summary__label">planned posts</div>
+            </div>
+            <div class="planned-posts-summary__card">
+              <div class="planned-posts-summary__number">{next_post_days}</div>
+              <div class="planned-posts-summary__label">days until next post</div>
+            </div>
+            <div class="planned-posts-summary__card">
+              <div class="planned-posts-summary__number">{html.escape(next_post_date)}</div>
+              <div class="planned-posts-summary__label">next publication date</div>
+            </div>
+          </div>
+          """
+
+
+          posts = []
+
+          for path in sorted(BLOG_DIR.rglob("*.md")):
+              if path.name == "_index.md":
+                  continue
+
+              if is_excluded_path(path):
+                  continue
+
+              text = path.read_text(encoding="utf-8", errors="ignore")
+              front_matter = parse_front_matter(extract_front_matter(text))
+
+              post_date = parse_date(front_matter.get("date"))
+              if not post_date:
+                  continue
+
+              if post_date <= TODAY:
+                  continue
+
+              title = front_matter.get("title") or path.stem.replace("-", " ").title()
+              description = front_matter.get("description") or "This post is scheduled and will be published automatically on the configured publication date."
+              categories = ensure_list(front_matter.get("categories"))
+              tags = ensure_list(front_matter.get("tags"))
+
+              days_until = (post_date - TODAY).days
+
+              posts.append(
+                  {
+                      "title": title,
+                      "description": description,
+                      "categories": categories,
+                      "tags": tags,
+                      "file": str(path).replace("\\", "/"),
+                      "date": post_date,
+                      "date_display": post_date.strftime("%d-%m-%Y"),
+                      "days_until": days_until,
+                      "countdown": build_countdown_label(days_until),
+                  }
+              )
+
+          posts.sort(key=lambda item: (item["date"], item["title"].lower()))
+
+          cards_html = []
+
+          for post in posts:
+              category_html = ""
+              if post["categories"]:
+                  category_html = " / ".join(
+                      f'<span class="planned-post-chip planned-post-chip--category">{html.escape(category)}</span>'
+                      for category in post["categories"]
+                  )
+
+              tags_html = ""
+              if post["tags"]:
+                  tags_html = "".join(
+                      f'<span class="planned-post-chip">{html.escape(tag)}</span>'
+                      for tag in post["tags"]
+                  )
+
+              card_html = f"""
+          <article class="planned-post-card">
+            <div class="planned-post-card__top">
+              <span class="planned-post-card__date">{html.escape(post["date_display"])}</span>
+              <span class="planned-post-card__countdown">{html.escape(post["countdown"])}</span>
+            </div>
+
+            <h2 class="planned-post-card__title">{html.escape(post["title"])}</h2>
+
+            <div class="planned-post-card__meta">
+              <span class="planned-post-card__meta-item">Blog</span>
+              {f'<span class="planned-post-card__meta-separator">/</span><span class="planned-post-card__meta-item">{category_html}</span>' if category_html else ''}
+            </div>
+
+            <p class="planned-post-card__description">{html.escape(post["description"])}</p>
+
+            {f'<div class="planned-post-card__chips">{tags_html}</div>' if tags_html else ''}
+
+            <div class="planned-post-card__footer">
+              <span class="planned-post-card__footer-label">Source file</span>
+              <code>{html.escape(post["file"])}</code>
+            </div>
+          </article>
+          """
+              cards_html.append(card_html)
+
+          page_parts = [
+              "---",
+              'title: "Planned posts"',
+              'description: "Overview of scheduled future posts."',
+              "---",
+              "",
+              '<div class="planned-posts-page">',
+              build_summary(posts),
+          ]
+
+          if posts:
+              page_parts.append('<div class="planned-posts-grid">')
+              page_parts.extend(cards_html)
+              page_parts.append("</div>")
+
+          page_parts.append("</div>")
+          page_parts.append("")
+
+          OUTPUT_FILE.write_text("\n".join(page_parts), encoding="utf-8")
+
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary_path:
+              with open(summary_path, "a", encoding="utf-8") as summary:
+                  summary.write("## Planned posts\n\n")
+                  summary.write(f"Excluded content directory: `{EXCLUDED_CONTENT_DIR}`\n\n")
+                  if posts:
+                      summary.write(f"Found **{len(posts)}** planned post(s).\n\n")
+                      summary.write("| Date | Countdown | Title |\n")
+                      summary.write("|---|---|---|\n")
+                      for post in posts:
+                          summary.write(
+                              f'| {post["date_display"]} | {post["countdown"]} | {post["title"]} |\n'
+                          )
+                  else:
+                      summary.write("No planned posts found.\n")
+
+          print(f"Generated {OUTPUT_FILE} with {len(posts)} planned post(s).")
+          print(f"Excluded planned posts directory: {EXCLUDED_CONTENT_DIR}")
+          PY
+
+      - name: Clean previous Hugo output
+        run: rm -rf public
+
+      - name: Build site
+        run: |
+          hugo \
+            --minify \
+            --cleanDestinationDir \
+            --gc \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      - name: Sanity check build output
+        run: |
+          echo "Checking public directory..."
+          test -d public
+          test -f public/index.html
+
+          echo "Checking for symlinks..."
+          if find public -type l | grep -q .; then
+            echo "Error: symlinks found in public directory"
+            find public -type l
+            exit 1
+          fi
+
+          echo "Checking artifact size..."
+          du -sh public
+
+          echo "First files in public:"
+          find public -maxdepth 2 -type f | awk 'NR <= 50 { print }'
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

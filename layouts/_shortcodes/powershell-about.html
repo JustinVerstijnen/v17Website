@@ -1,0 +1,22 @@
+{{- $command := .Get "command" | default `.\AboutJustinVerstijnen.ps1` -}}
+{{- $content := .Inner | strings.TrimSpace -}}
+
+<div class="ps-about" data-command="{{ $command }}">
+  <div class="ps-terminal-wrapper" aria-live="polite">
+    <div class="ps-terminal-chrome" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <pre class="ps-terminal"><span class="ps-prompt">PS C:\Users\Justin&gt; </span><span class="ps-command"></span>
+<span class="ps-output"></span><span class="ps-cursor" aria-hidden="true">█</span></pre>
+  </div>
+
+  <div class="ps-markdown about-hidden" hidden aria-hidden="true">
+    {{ $content | safeHTML }}
+  </div>
+</div>
+
+<script>
+  document.body && document.body.classList.add("ps-about-intro-active");
+</script>
+<link rel="stylesheet" href="/css/powershell-about.css">
+<script src="/js/powershell-about.js" defer></script>
