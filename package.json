@@ -57,8 +57,7 @@
     "cross-env": "^10.1.0",
     "hugo-extended": "0.164.0",
     "postcss-cli": "^11.0.1",
-    "rtlcss": "^4.3.0",
-    "sass-embedded": "1.102.0"
+    "rtlcss": "^4.3.0"
   },
   "optionalDependencies": {
     "npm-check-updates": "^19.3.2",
@@ -73,5 +72,8 @@
     "proseWrap": "always",
     "singleQuote": true
   },
-  "cSpell:ignore": ""
+  "cSpell:ignore": "",
+  "workspaces": [
+    "packages/hugoautogen"
+  ]
 }
